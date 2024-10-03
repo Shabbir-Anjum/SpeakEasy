@@ -1,0 +1,17 @@
+[project]
+name = "Intervuo_backend"
+version = "0.1.0"
+description = "This is DJANGO APP"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.1.1",
+    "django-admin>=2.0.2",
+    "djangorestframework>=3.15.2",
+    "djangorestframework-simplejwt>=5.3.1",
+    "djoser>=2.2.3",
+    "gunicorn>=23.0.0",
+    "python-dotenv>=1.0.1",
+    "django-cors-headers>=4.4.0",
+    "mysqlclient>=2.2.4",
+]
