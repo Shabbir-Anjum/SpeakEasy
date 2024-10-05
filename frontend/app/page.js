@@ -1,8 +1,9 @@
-'use client'
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Plus, List, Brain, Settings, User } from 'lucide-react';
-import Link from 'next/link';
+"use client";
+import React from "react";
+import { motion } from "framer-motion";
+import { Plus, List, Brain, Settings, User } from "lucide-react";
+import Link from "next/link";
+import { useAuth } from "@/utils/auth";
 
 const Logo = () => (
   <div className="flex items-center">
@@ -11,7 +12,7 @@ const Logo = () => (
   </div>
 );
 
-const Header = () => (
+export const Header = ({ auth }) => (
   <header className="absolute top-0 left-0 right-0 z-20 bg-black bg-opacity-20">
     <div className="container mx-auto px-4 py-4 flex justify-between items-center">
       <Link href="/">
@@ -19,22 +20,62 @@ const Header = () => (
       </Link>
       <nav>
         <ul className="flex space-x-6">
-          <li><Link href="/" className="hover:text-blue-400 transition-colors">Home</Link></li>
-          <li><Link href="/features" className="hover:text-blue-400 transition-colors">Features</Link></li>
-          <li><Link href="/pricing" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
-          <li><Link href="/contact" className="hover:text-blue-400 transition-colors">Contact</Link></li>
+          <li>
+            <Link href="/" className="hover:text-blue-400 transition-colors">
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/features"
+              className="hover:text-blue-400 transition-colors"
+            >
+              Features
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/pricing"
+              className="hover:text-blue-400 transition-colors"
+            >
+              Pricing
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/contact"
+              className="hover:text-blue-400 transition-colors"
+            >
+              Contact
+            </Link>
+          </li>
+          <li>
+            {auth.loading ? (
+              "..."
+            ) : (
+              <Link
+                href={auth.user ? "/logout" : "/login"}
+                className="hover:text-blue-400 transition-colors"
+              >
+                {auth.user ? "Logout" : "Login"}
+              </Link>
+            )}
+          </li>
         </ul>
       </nav>
     </div>
   </header>
 );
 
-const Footer = () => (
+export const Footer = () => (
   <footer className="absolute bottom-0 left-0 right-0 z-20 bg-black bg-opacity-20">
     <div className="container mx-auto px-4 py-4 flex justify-between items-center">
       <div className="text-sm">© 2024 Intervuo. All rights reserved.</div>
       <div className="flex space-x-4">
-        <Link href="/settings" className="hover:text-blue-400 transition-colors">
+        <Link
+          href="/settings"
+          className="hover:text-blue-400 transition-colors"
+        >
           <Settings size={20} />
         </Link>
         <Link href="/profile" className="hover:text-blue-400 transition-colors">
@@ -46,16 +87,23 @@ const Footer = () => (
 );
 
 const SimplifiedAIAssistantPage = () => {
+  const auth = useAuth();
+
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
+  console.log(auth);
+
   return (
-    <div className="min-h-screen bg-cover bg-center bg-fixed relative text-white flex items-center"
-         style={{ backgroundImage: 'url("/1.jpg")' }}>
+    <div
+      className="min-h-screen bg-cover bg-center bg-fixed relative text-white flex items-center"
+      style={{ backgroundImage: 'url("/1.jpg")' }}
+    >
       <div className="absolute inset-0 bg-black bg-opacity-60"></div>
-      <Header />
+      <Header auth={auth} />
+
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="max-w-2xl">
           <motion.h1
@@ -66,16 +114,19 @@ const SimplifiedAIAssistantPage = () => {
           >
             Your AI Assistant Awaits
           </motion.h1>
-          
+
           <motion.p
             className="text-xl mb-8"
             initial="hidden"
             animate="visible"
             variants={fadeIn}
           >
-            Create your personalized AI companion with advanced voice recognition and intelligent learning capabilities. Provide knowledge data to craft custom agents tailored to your needs. Experience the future of digital assistance today.
+            Create your personalized AI companion with advanced voice
+            recognition and intelligent learning capabilities. Provide knowledge
+            data to craft custom agents tailored to your needs. Experience the
+            future of digital assistance today.
           </motion.p>
-          
+
           <motion.div
             className="flex space-x-4"
             initial="hidden"
