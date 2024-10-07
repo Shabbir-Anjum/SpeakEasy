@@ -5,12 +5,12 @@ import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
 const CreateAgentPage = () => {
     
-  
   const [step, setStep] = useState(1);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
+  
   const [agentData, setAgentData] = useState({
     name: '',
     language: '',
