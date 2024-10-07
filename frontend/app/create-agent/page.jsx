@@ -10,6 +10,7 @@ const CreateAgentPage = () => {
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
+  
   const [agentData, setAgentData] = useState({
     name: '',
     language: '',
