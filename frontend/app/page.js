@@ -12,60 +12,98 @@ const Logo = () => (
   </div>
 );
 
-export const Header = ({ auth }) => (
-  <header className="absolute top-0 left-0 right-0 z-20 bg-black bg-opacity-20">
-    <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-      <Link href="/">
-        <Logo />
-      </Link>
-      <nav>
-        <ul className="flex space-x-6">
-          <li>
-            <Link href="/" className="hover:text-blue-400 transition-colors">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/features"
-              className="hover:text-blue-400 transition-colors"
-            >
-              Features
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/pricing"
-              className="hover:text-blue-400 transition-colors"
-            >
-              Pricing
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/contact"
-              className="hover:text-blue-400 transition-colors"
-            >
-              Contact
-            </Link>
-          </li>
-          <li>
-            {auth.loading ? (
-              "..."
-            ) : (
+export const Header = () => {
+  const auth = useAuth();
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+
+    await auth.logout();
+  };
+
+  return (
+    <header className="absolute top-0 left-0 right-0 z-20 bg-black bg-opacity-20">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <Link href="/">
+          <Logo />
+        </Link>
+        <nav>
+          <ul className="flex space-x-6">
+            <li>
+              <Link href="/" className="hover:text-blue-400 transition-colors">
+                Home
+              </Link>
+            </li>
+            <li>
               <Link
-                href={auth.user ? "/logout" : "/login"}
+                href="/features"
                 className="hover:text-blue-400 transition-colors"
               >
-                {auth.user ? "Logout" : "Login"}
+                Features
               </Link>
+            </li>
+            <li>
+              <Link
+                href="/pricing"
+                className="hover:text-blue-400 transition-colors"
+              >
+                Pricing
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/contact"
+                className="hover:text-blue-400 transition-colors"
+              >
+                Contact
+              </Link>
+            </li>
+
+            {auth.loading ? (
+              <li>
+                <div>...</div>
+              </li>
+            ) : (
+              <>
+                {auth?.user ? (
+                  <>
+                    <li>
+                      <button
+                        onClick={handleLogout}
+                        className="hover:text-blue-400 transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li>
+                      <Link
+                        href="/register"
+                        className="hover:text-blue-400 transition-colors"
+                      >
+                        Sign up
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/login"
+                        className="hover:text-blue-400 transition-colors"
+                      >
+                        Login
+                      </Link>
+                    </li>
+                  </>
+                )}
+              </>
             )}
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-);
+          </ul>
+        </nav>
+      </div>
+    </header>
+  );
+};
 
 export const Footer = () => (
   <footer className="absolute bottom-0 left-0 right-0 z-20 bg-black bg-opacity-20">

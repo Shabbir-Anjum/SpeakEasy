@@ -1,39 +1,30 @@
-// api/auth/register/route.js
+// api/auth/logout/route.js
+
 const { NextResponse } = require("next/server");
 const axios = require("axios").default;
 
 export async function POST(request) {
   const body = await request.json();
-  const { first_name, last_name, username, email, password, re_password } =
-    body;
+  const { token } = body;
 
-  if (
-    !first_name ||
-    !last_name ||
-    !username ||
-    !email ||
-    !password ||
-    !re_password
-  ) {
-    return NextResponse.json(
-      { error: "Missing required values" },
-      { status: 400 }
-    );
+  if (!token) {
+    return NextResponse.json({ error: "Missing auth token" }, { status: 400 });
   }
 
   try {
     const response = await axios.post(
-      `${process.env.BACKEND_URL}/api/auth/users/`,
-      { first_name, last_name, username, email, password, re_password },
+      `${process.env.BACKEND_URL}/api/auth/logout`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",
           "User-Agent": "insomnia/9.3.2",
+          Authorization: `JWT ${token}`,
         },
       }
     );
 
-    console.log("Register response:");
+    console.log("Logout response:");
     console.log(response.data);
 
     return NextResponse.json(response.data, { status: 200 });

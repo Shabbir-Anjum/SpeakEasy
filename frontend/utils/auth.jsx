@@ -5,72 +5,100 @@ import { useState, useEffect, createContext, useContext } from "react";
 
 const AuthContext = createContext();
 
+const headers = { "Content-Type": "application/json" };
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    async function loadUserFromToken() {
-      const token = localStorage.getItem("token");
-      if (token) {
-        try {
-          const response = await fetch("/api/users/me/", {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          });
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-          } else {
-            localStorage.removeItem("token");
-          }
-        } catch (error) {
-          console.error("Failed to load user", error);
+  async function loadUserFromToken() {
+    const token = localStorage.getItem("access");
+    if (token) {
+      try {
+        const response = await fetch("/api/auth/me/", {
+          method: "POST",
+          body: JSON.stringify({ token }),
+          headers,
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+          console.log(userData);
+        } else {
+          localStorage.removeItem("access");
+          localStorage.removeItem("refresh");
         }
+      } catch (error) {
+        console.error("Failed to load user", error);
       }
-      setLoading(false);
     }
+    setLoading(false);
+  }
+
+  useEffect(() => {
     loadUserFromToken();
   }, []);
 
-  const login = async (username, password) => {
+  const login = async ({ username, password }) => {
     const response = await fetch("/api/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
+      headers,
     });
     if (response.ok) {
-      const { auth_token } = await response.json();
-      localStorage.setItem("token", auth_token);
-      setUser({ name: "Name", username });
-      router.push("/");
+      const { refresh, access } = await response.json();
+
+      if (refresh && access) {
+        localStorage.setItem("refresh", refresh);
+        localStorage.setItem("access", access);
+
+        await loadUserFromToken();
+        router.push("/");
+      }
     } else {
       throw new Error("Login failed");
     }
   };
 
   const logout = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access");
     if (token) {
-      await fetch("/api/auth/logout", {
+      const response = await fetch("/api/auth/logout", {
         method: "POST",
-        headers: {
-          Authorization: `Token ${token}`,
-        },
+        body: JSON.stringify({ token }),
+        headers,
       });
+      const data = await response.json();
+      console.log("Logout res: ");
+      console.log(data);
     }
-    localStorage.removeItem("token");
+
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
     setUser(null);
     router.push("/login");
   };
 
-  const register = async (email, username, password) => {
+  const register = async ({
+    first_name,
+    last_name,
+    username,
+    email,
+    password,
+    re_password,
+  }) => {
     const response = await fetch("/api/auth/register", {
+      headers,
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, username, password }),
+      body: JSON.stringify({
+        first_name,
+        last_name,
+        username,
+        email,
+        password,
+        re_password,
+      }),
     });
     if (response.ok) {
       router.push("/login");
@@ -82,7 +110,7 @@ export const AuthProvider = ({ children }) => {
   const resetPassword = async (email) => {
     const response = await fetch("/api/auth/reset-password", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ email }),
     });
     if (!response.ok) {
@@ -93,8 +121,8 @@ export const AuthProvider = ({ children }) => {
   const resetPasswordConfirm = async (uid, token, new_password) => {
     const response = await fetch("/api/auth/reset-password-confirm", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ uid, token, new_password }),
+      headers,
     });
     if (!response.ok) {
       throw new Error("Password reset confirmation failed");

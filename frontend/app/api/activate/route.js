@@ -1,21 +1,22 @@
+// api/activate/route.js
+
 const { NextResponse } = require("next/server");
 const axios = require("axios").default;
 
 export async function POST(request) {
-  const body = await request.json();
-  const { username, password } = body;
+  const { uid, token } = await request.json();
 
-  if (!username || !password) {
+  if (!uid || !token) {
     return NextResponse.json(
-      { error: "Missing username or password" },
+      { error: "Missing required parameters" },
       { status: 400 }
     );
   }
 
   try {
     const response = await axios.post(
-      `${process.env.BACKEND_URL}/api/auth/jwt/create/`,
-      { username, password },
+      `${process.env.BACKEND_URL}/api/auth/users/activation/`,
+      { uid, token },
       {
         headers: {
           "Content-Type": "application/json",
@@ -24,11 +25,12 @@ export async function POST(request) {
       }
     );
 
-    console.log("Login response:");
+    console.log("Activation response:");
     console.log(response.data);
 
     return NextResponse.json(response.data, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error }, { status: 400 });
+    console.error(error.response);
+    return NextResponse.json({ data: error.response.data, type: "error" });
   }
 }
