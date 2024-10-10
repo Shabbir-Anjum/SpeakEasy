@@ -69,6 +69,9 @@ export default function Activate({ params }) {
                         Account activation successful! Please login
                       </p>
                     )}
+                    <p className="text-center text-white">
+                      Account activation successful! Please login
+                    </p>
                   </>
                 )}
 
