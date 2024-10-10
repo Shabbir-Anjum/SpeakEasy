@@ -11,7 +11,7 @@ export async function POST(request) {
 
   try {
     const response = await axios.get(
-      `${process.env.BACKEND_URL}/api/auth/users/me/`,
+      `${process.env.NEXT_PUBLIC_SERVER}/api/auth/users/me/`,
       {
         headers: {
           "Content-Type": "application/json",

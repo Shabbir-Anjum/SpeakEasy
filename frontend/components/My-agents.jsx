@@ -1,6 +1,4 @@
-'use client';
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -17,11 +15,43 @@ const Button = ({ children, className, onClick }) => (
 );
 
 const Dashboard = () => {
-  const agents = [
-    { id: 1, name: "Exam Preparation", conversations: 1, minutesSpoken: 1.4, icon: "https://img.icons8.com/nolan/64/student-male.png" },
-    { id: 2, name: "Talk and Human", conversations: 2, minutesSpoken: 3.1, icon: "https://img.icons8.com/nolan/64/communication.png" },
-    { id: 3, name: "Language Tutor", conversations: 5, minutesSpoken: 10.5, icon: "https://img.icons8.com/nolan/64/translation.png" },
-  ];
+  const [agents, setAgents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const token ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMxMTQzOTIyLCJpYXQiOjE3Mjg1NTE5MjIsImp0aSI6ImIyNzc0YWQwZjA0OTQyYTM5ODIwMDE1OGJkNTUzZTZjIiwidXNlcl9pZCI6Mn0.JuQ8KPZ4PxJ7kh9pIau_ZxwXL5WRnYK1Sb2chOasLJ0'
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/list`, {
+          method: "GET",
+          headers: {
+            "User-Agent": "insomnia/9.3.2",
+            Authorization:`JWT ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch agents');
+        }
+        const data = await response.json();
+        setAgents(data);
+        setIsLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setIsLoading(false);
+      }
+    };
+
+    fetchAgents();
+  }, []);
+
+  if (isLoading) {
+    return <div className="text-white">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
 
   return (
     <div className="p-8 bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white animate-fadeIn">
@@ -33,11 +63,18 @@ const Dashboard = () => {
         {agents.map((agent) => (
           <Card key={agent.id} className="bg-gradient-to-br from-gray-700 to-gray-900 border-none animate-slideUp">
             <div className="flex items-center mb-4">
-              <Image src={agent.icon} alt={agent.name} width={48} height={48} className="mr-4" />
-              <h2 className="text-xl font-semibold">{agent.name}</h2>
+              <Image 
+                src={agent.avatar || "https://img.icons8.com/nolan/64/user-default.png"} 
+                alt={agent.agent_name} 
+                width={48} 
+                height={48} 
+                className="mr-4 rounded-full"
+              />
+              <h2 className="text-xl font-semibold">{agent.agent_name}</h2>
             </div>
-            <p className="text-lg mb-2">{agent.conversations} conversations</p>
-            <p className="text-sm text-gray-400 mb-4">{agent.minutesSpoken} minutes spoken</p>
+            <p className="text-sm text-gray-400 mb-2">Language: {agent.language}</p>
+            <p className="text-sm text-gray-400 mb-2">Voice: {agent.voice}</p>
+            <p className="text-sm text-gray-400 mb-4">LLM: {agent.agent_llm}</p>
             <Link href={`/agent-talk/${agent.id}`}>
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors">
                 View Agent

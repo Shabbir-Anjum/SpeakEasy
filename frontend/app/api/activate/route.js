@@ -15,7 +15,7 @@ export async function POST(request) {
 
   try {
     const response = await axios.post(
-      `${process.env.BACKEND_URL}/api/auth/users/activation/`,
+      `${process.env.NEXT_PUBLIC_SERVER}/api/auth/users/activation/`,
       { uid, token },
       {
         headers: {

@@ -13,7 +13,7 @@ export async function POST(request) {
 
   try {
     const response = await axios.post(
-      `${process.env.BACKEND_URL}/api/auth/logout`,
+      `${process.env.NEXT_PUBLIC_SERVER}/api/auth/logout`,
       {},
       {
         headers: {

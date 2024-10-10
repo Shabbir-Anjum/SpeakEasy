@@ -1,11 +1,8 @@
-// api/auth/register/route.js
-const { NextResponse } = require("next/server");
-const axios = require("axios").default;
+import { NextResponse } from "next/server";
 
 export async function POST(request) {
   const body = await request.json();
-  const { first_name, last_name, username, email, password, re_password } =
-    body;
+  const { first_name, last_name, username, email, password, re_password } = body;
 
   if (
     !first_name ||
@@ -22,23 +19,34 @@ export async function POST(request) {
   }
 
   try {
-    const response = await axios.post(
-      `${process.env.BACKEND_URL}/api/auth/users/`,
-      { first_name, last_name, username, email, password, re_password },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "User-Agent": "insomnia/9.3.2",
-        },
-      }
-    );
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/auth/users/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "insomnia/9.3.2",
+      },
+      body: JSON.stringify({
+        "username": username,
+        "password": password,
+        "re_password": re_password,
+        "email": email,
+        "first_name": first_name,
+        "last_name": last_name,
+      }),
+    });
+
+    const responseData = await response.json();
 
     console.log("Register response:");
-    console.log(response.data);
+    console.log(responseData);
 
-    return NextResponse.json(response.data, { status: 200 });
+    if (!response.ok) {
+      throw new Error(responseData.error || "Registration failed");
+    }
+
+    return NextResponse.json(responseData, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error }, { status: 400 });
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }

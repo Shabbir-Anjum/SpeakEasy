@@ -1,5 +1,4 @@
-const { NextResponse } = require("next/server");
-const axios = require("axios").default;
+import { NextResponse } from "next/server";
 
 export async function POST(request) {
   const body = await request.json();
@@ -13,22 +12,30 @@ export async function POST(request) {
   }
 
   try {
-    const response = await axios.post(
-      `${process.env.BACKEND_URL}/api/auth/jwt/create/`,
-      { username, password },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "User-Agent": "insomnia/9.3.2",
-        },
-      }
-    );
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/auth/jwt/create/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "insomnia/9.3.2",
+      },
+      body: JSON.stringify({
+        "username": username,
+        "password": password,
+      }),
+    });
+
+    const responseData = await response.json();
 
     console.log("Login response:");
-    console.log(response.data);
+    console.log(responseData);
 
-    return NextResponse.json(response.data, { status: 200 });
+    if (!response.ok) {
+      throw new Error(responseData.error || "Login failed");
+    }
+
+    return NextResponse.json(responseData, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error }, { status: 400 });
+    console.error(error);
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
