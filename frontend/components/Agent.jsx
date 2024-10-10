@@ -7,18 +7,15 @@ const AgentTalk = () => {
   const [isTalking, setIsTalking] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [showAlert, setShowAlert] = useState(false);
+  const [agentname, setAgentName]= useState('')
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
   const timeoutRef = useRef(null);
   const videoRef = useRef(null);
 
-  const agent = {
-    id: parseInt(id),
-    name: "Exam Preparation Assistant",
-    icon: "🎓"
-  };
-
   useEffect(() => {
+    const storedAgentName = localStorage.getItem('currentAgentName');
+    setAgentName(storedAgentName || "unknown");
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
@@ -102,10 +99,10 @@ const AgentTalk = () => {
   return (
     <>
       <Head>
-        <title>{agent.name} - Agent Talk</title>
+        <title>{agentname} - Agent Talk</title>
       </Head>
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-        <h1 className="text-3xl font-bold mb-4">{agent.name}</h1>
+        <h1 className="text-3xl font-bold mb-4">{agentname}</h1>
         <div className="w-48 h-48 rounded-full overflow-hidden mb-6">
           <video
             ref={videoRef}

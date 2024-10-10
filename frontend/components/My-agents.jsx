@@ -1,24 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-
+import { useRouter } from 'next/navigation';
 const Card = ({ children, className }) => (
   <div className={`bg-gray-800 rounded-lg shadow-md p-6 ${className}`}>
     {children}
   </div>
 );
-
 const Button = ({ children, className, onClick }) => (
   <button onClick={onClick} className={`px-4 py-2 rounded-md ${className}`}>
     {children}
   </button>
 );
 
+
 const Dashboard = () => {
   const [agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const router = useRouter();
   useEffect(() => {
     const fetchAgents = async () => {
       try {
@@ -52,7 +51,10 @@ const Dashboard = () => {
   if (error) {
     return <div className="text-red-500">Error: {error}</div>;
   }
-
+  const handleViewAgent = (agent) => {
+    localStorage.setItem('currentAgentName', agent.agent_name);
+    router.push(`/agent-talk/${agent.id}`);
+  };
   return (
     <div className="p-8 bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white animate-fadeIn">
       <h1 className="text-4xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 animate-slideDown">
@@ -75,11 +77,12 @@ const Dashboard = () => {
             <p className="text-sm text-gray-400 mb-2">Language: {agent.language}</p>
             <p className="text-sm text-gray-400 mb-2">Voice: {agent.voice}</p>
             <p className="text-sm text-gray-400 mb-4">LLM: {agent.agent_llm}</p>
-            <Link href={`/agent-talk/${agent.id}`}>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors">
-                View Agent
-              </Button>
-            </Link>
+            <Button 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+              onClick={() => handleViewAgent(agent)}
+            >
+              View Agent
+            </Button>
           </Card>
         ))}
       </div>

@@ -96,7 +96,7 @@ const CreateAgentPage = () => {
       if (response.ok) {
         const result = await response.json();
         console.log('Agent created successfully:', result);
-        router.push('/myassistant');
+        router.push('/my-agents');
       } else {
         const errorData = await response.json();
         console.error('Failed to create agent:', errorData);
