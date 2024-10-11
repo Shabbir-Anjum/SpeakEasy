@@ -14,14 +14,14 @@ const AgentTalk = () => {
   const audioRef = useRef(null);
   const timeoutRef = useRef(null);
   const videoRef = useRef(null);
-
+  const agentId = localStorage.getItem("currentAgentId");
+  const storedAgentName = localStorage.getItem('currentAgentName');
+  const storedVoiceId = localStorage.getItem('selectedVoiceId');
   const XI_API_KEY = process.env.NEXT_PUBLIC_XI_API_KEY;
 
   useEffect(() => {
     sendAudioToBackend('hello')
-    const agentId = localStorage.getItem("currentAgentId");
-    const storedAgentName = localStorage.getItem('currentAgentName');
-    const storedVoiceId = localStorage.getItem('selectedVoiceId');
+
     setAgentName(storedAgentName || "unknown");
     setSelectedVoice(storedVoiceId || "Xb7hH8MSUJpSbSDYk0k2");
 
