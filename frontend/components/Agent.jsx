@@ -19,6 +19,7 @@ const AgentTalk = () => {
 
   useEffect(() => {
     sendAudioToBackend('hello')
+    const agentId = localStorage.getItem("currentAgentId");
     const storedAgentName = localStorage.getItem('currentAgentName');
     const storedVoiceId = localStorage.getItem('selectedVoiceId');
     setAgentName(storedAgentName || "unknown");
@@ -78,7 +79,7 @@ const AgentTalk = () => {
     if (!text.trim()) return;
     console.log('Sending to backend:', text);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/sync/afcb98ed-cf1b-44b2-9099-aebcaab28a9a/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/sync/${agentId}/`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",

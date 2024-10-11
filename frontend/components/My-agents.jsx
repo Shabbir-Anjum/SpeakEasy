@@ -22,6 +22,7 @@ const Dashboard = () => {
     const fetchAgents = async () => {
       try {
         const token = localStorage.getItem("access");
+        localStorage.setItem('currentAgentId', agents.id);
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/list`, {
           method: "GET",
           headers: {
