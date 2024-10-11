@@ -21,7 +21,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const token ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMxMTQzOTIyLCJpYXQiOjE3Mjg1NTE5MjIsImp0aSI6ImIyNzc0YWQwZjA0OTQyYTM5ODIwMDE1OGJkNTUzZTZjIiwidXNlcl9pZCI6Mn0.JuQ8KPZ4PxJ7kh9pIau_ZxwXL5WRnYK1Sb2chOasLJ0'
+        const token = localStorage.getItem("access");
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/list`, {
           method: "GET",
           headers: {
@@ -65,8 +65,8 @@ const Dashboard = () => {
         {agents.map((agent) => (
           <Card key={agent.id} className="bg-gradient-to-br from-gray-700 to-gray-900 border-none animate-slideUp">
             <div className="flex items-center mb-4">
-              <Image 
-                src={agent.avatar || "https://img.icons8.com/nolan/64/user-default.png"} 
+              <img 
+                src={"https://img.icons8.com/nolan/64/user-default.png"} 
                 alt={agent.agent_name} 
                 width={48} 
                 height={48} 

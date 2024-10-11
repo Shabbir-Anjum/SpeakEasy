@@ -1,20 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Head from 'next/head';
+import axios from 'axios';
 
 const AgentTalk = () => {
   const { id } = useParams();
   const [isTalking, setIsTalking] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [showAlert, setShowAlert] = useState(false);
-  const [agentname, setAgentName]= useState('')
+  const [agentName, setAgentName] = useState('');
+  const [selectedVoice, setSelectedVoice] = useState('Xb7hH8MSUJpSbSDYk0k2');
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
   const timeoutRef = useRef(null);
   const videoRef = useRef(null);
+
+  const XI_API_KEY = process.env.NEXT_PUBLIC_XI_API_KEY;
+
   useEffect(() => {
+    sendAudioToBackend('hello')
     const storedAgentName = localStorage.getItem('currentAgentName');
+    const storedVoiceId = localStorage.getItem('selectedVoiceId');
     setAgentName(storedAgentName || "unknown");
+    setSelectedVoice(storedVoiceId || "Xb7hH8MSUJpSbSDYk0k2");
+
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
@@ -28,9 +37,9 @@ const AgentTalk = () => {
 
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-        timeoutRef.current = setTimeout(() => {
+        if (latestResult.isFinal) {
           sendAudioToBackend(latestTranscript);
-        }, 1000);
+        }
       };
 
       recognitionRef.current.onend = () => {
@@ -61,9 +70,6 @@ const AgentTalk = () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-      if (transcript.trim()) {
-        sendAudioToBackend(transcript);
-      }
       videoRef.current.pause();
     }
   };
@@ -72,24 +78,63 @@ const AgentTalk = () => {
     if (!text.trim()) return;
     console.log('Sending to backend:', text);
     try {
-      const response = await fetch('http://localhost:8000/api/process-speech/', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/sync/afcb98ed-cf1b-44b2-9099-aebcaab28a9a/`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          "User-Agent": "insomnia/9.3.2"
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ "human_text": text }),
       });
 
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
 
-      const audioBlob = await response.blob();
+      const responseData = await response.json();
+      console.log(responseData.ai_text);
+      if (responseData.ai_text) {
+        generateSpeech(responseData.ai_text);
+      } else {
+        console.error('AI text not found in the response');
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 5000);
+      }
+    } catch (error) {
+      console.error('Error sending audio to backend:', error);
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 5000);
+    }
+  };
+
+  const generateSpeech = async (text) => {
+    try {
+      const response = await axios.post(
+        `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}/stream`,
+        {
+          text: text,
+          model_id: "eleven_multilingual_v2",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.8
+          }
+        },
+        {
+          headers: {
+            'Accept': 'audio/mpeg',
+            'xi-api-key': XI_API_KEY,
+            'Content-Type': 'application/json'
+          },
+          responseType: 'arraybuffer'
+        }
+      );
+
+      const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
       const audioUrl = URL.createObjectURL(audioBlob);
       audioRef.current.src = audioUrl;
       audioRef.current.play();
     } catch (error) {
-      console.error('Error sending audio to backend:', error);
+      console.error('Error generating speech:', error);
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 5000);
     }
@@ -98,11 +143,11 @@ const AgentTalk = () => {
   return (
     <>
       <Head>
-        <title>{agentname} - Agent Talk</title>
+        <title>{agentName} - Agent Talk</title>
       </Head>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-        <h1 className="text-3xl font-bold mb-4">{agentname}</h1>
-        <div className="w-48 h-48 rounded-full overflow-hidden mb-6">
+      <div className="flex flex-col items-center gap-5 justify-center min-h-screen bg-gray-900 text-white p-4">
+        <h1 className="text-3xl font-bold mb-4">{agentName}</h1>
+        <div className="w-96 h-96 rounded-full overflow-hidden mb-6">
           <video
             ref={videoRef}
             loop
@@ -122,12 +167,6 @@ const AgentTalk = () => {
           >
             {isTalking ? 'Stop Talking' : 'Start Talking'}
           </button>
-        </div>
-        <div className="w-full max-w-md">
-          <h2 className="text-xl font-semibold mb-2">Latest Transcript</h2>
-          <p className="p-4 bg-gray-800 rounded-lg min-h-[100px] max-h-[200px] overflow-y-auto">
-            {transcript || "Start talking to see your transcript here..."}
-          </p>
         </div>
         <audio ref={audioRef} className="hidden" />
         {showAlert && (

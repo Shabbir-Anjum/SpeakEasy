@@ -4,12 +4,13 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
+import axios from "axios";
 
 const CreateAgentPage = () => {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
-
+  const [voices, setVoices] = useState([]);
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
   const [agentData, setAgentData] = useState({
@@ -23,6 +24,11 @@ const CreateAgentPage = () => {
     customKnowledge: "",
     files: [],
   });
+  const XI_API_KEY = process.env.NEXT_PUBLIC_XI_API_KEY;
+
+  useEffect(() => {
+    fetchVoices();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -36,44 +42,21 @@ const CreateAgentPage = () => {
   const handleAvatarChange = (e) => {
     setAgentData((prevData) => ({ ...prevData, avatar: e.target.files[0] }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Create a new FormData object
     const formData = new FormData();
 
-    // Create the agent object structure
-    const agentObject = {
-      identity: {
-        agent_name: agentData.name,
-        language: agentData.language,
-        voice: agentData.voice,
-      },
-      behaviour: {
-        agent_greeting: agentData.greeting,
-        agent_prompt: agentData.prompt,
-      },
-      knowledge: {
-        agent_llm: agentData.llm,
-        custom_knowledge: agentData.customKnowledge,
-        knowledge_set: {
-          knowledge_files_set: [], // We'll handle files separately
-        },
-      },
-    };
-
-    // Append the JSON data as a string with the key 'agent'
+    // Append form data
     formData.append("agent.identity.agent_name", agentData.name);
     formData.append("agent.identity.language", agentData.language);
     formData.append("agent.identity.voice", agentData.voice);
     formData.append("agent.behaviour.agent_greeting", agentData.greeting);
     formData.append("agent.behaviour.agent_prompt", agentData.prompt);
     formData.append("agent.knowledge.agent_llm", agentData.llm);
-    formData.append(
-      "agent.knowledge.custom_knowledge",
-      agentData.customKnowledge
-    );
-    // formData.append("agent.knowledge.knowledge_set.knowledge_files_set", []);
+    formData.append("agent.knowledge.custom_knowledge", agentData.customKnowledge);
 
     // Append the avatar file if it exists
     if (agentData.avatar) {
@@ -91,11 +74,6 @@ const CreateAgentPage = () => {
       if (!token) {
         alert("Not logged in");
         return;
-      }
-
-      // Log the FormData contents
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
       }
 
       const response = await fetch(
@@ -126,35 +104,44 @@ const CreateAgentPage = () => {
   };
 
   const nextStep = (e) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
     setStep(step + 1);
   };
 
   const prevStep = (e) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
     setStep(step - 1);
+  };
+
+  const fetchVoices = async () => {
+    try {
+      const response = await axios.get('https://api.elevenlabs.io/v1/voices', {
+        headers: {
+          'Accept': 'application/json',
+          'xi-api-key': XI_API_KEY
+        }
+      });
+      setVoices(response.data.voices);
+      if (response.data.voices.length > 0) {
+        setAgentData(prevData => ({ ...prevData, voice: response.data.voices[0].voice_id }));
+      }
+    } catch (error) {
+      console.error('Error fetching voices:', error);
+    }
   };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
       <Sidebar isCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
-      <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${
-          isSidebarCollapsed ? "ml-20" : "ml-64"
-        }`}
-      >
+      <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? "ml-20" : "ml-64"}`}>
         <div className="min-h-screen p-8">
-          <h1 className="text-5xl font-bold mb-12 text-center text-white">
-            Create Your Custom Agent
-          </h1>
+          <h1 className="text-5xl font-bold mb-12 text-center text-white">Create Your Custom Agent</h1>
 
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
             <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl shadow-xl p-8 mb-8">
               {step === 1 && (
                 <div className="space-y-6 animate-fadeIn">
-                  <h2 className="text-3xl font-semibold mb-6 text-white">
-                    Step 1: Identity
-                  </h2>
+                  <h2 className="text-3xl font-semibold mb-6 text-white">Step 1: Identity</h2>
                   <div>
                     <label className="block mb-2 text-white">Agent Name</label>
                     <input
@@ -174,21 +161,12 @@ const CreateAgentPage = () => {
                       onChange={handleInputChange}
                       className="w-full bg-white bg-opacity-20 rounded-md p-3 text-white"
                     >
-                      <option value="" className=" bg-gray-800">
-                        Select a language
-                      </option>
-                      <option value="english" className=" bg-gray-800">
-                        English
-                      </option>
-                      <option value="spanish" className=" bg-gray-800">
-                        Spanish
-                      </option>
-                      <option value="french" className=" bg-gray-800">
-                        French
-                      </option>
-                      <option value="german" className=" bg-gray-800">
-                        German
-                      </option>
+                      <option value="" className="bg-gray-800">Select a language</option>
+                      <option value="english" className="bg-gray-800">English</option>
+                      <option value="spanish" className="bg-gray-800">Spanish</option>
+                      <option value="french" className="bg-gray-800">French</option>
+                      <option value="german" className="bg-gray-800">German</option>
+                      <option value="hindi" className="bg-gray-800">Hindi</option>
                     </select>
                   </div>
                   <div>
@@ -199,15 +177,11 @@ const CreateAgentPage = () => {
                       onChange={handleInputChange}
                       className="w-full bg-white bg-opacity-20 rounded-md p-3 text-white"
                     >
-                      <option value="" className=" bg-gray-800">
-                        Select a voice
-                      </option>
-                      <option value="adam" className=" bg-gray-800">
-                        Adam
-                      </option>
-                      <option value="alice" className=" bg-gray-800">
-                        Alice
-                      </option>
+                      {voices.map((voice) => (
+                        <option key={voice.voice_id} value={voice.voice_id} className="bg-gray-800">
+                          {voice.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
