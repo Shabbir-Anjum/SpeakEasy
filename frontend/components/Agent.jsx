@@ -12,7 +12,6 @@ const AgentTalk = () => {
   const audioRef = useRef(null);
   const timeoutRef = useRef(null);
   const videoRef = useRef(null);
-
   useEffect(() => {
     const storedAgentName = localStorage.getItem('currentAgentName');
     setAgentName(storedAgentName || "unknown");
