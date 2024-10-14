@@ -77,7 +77,7 @@ const CreateAgentPage = () => {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER}/api/console/create`,
+        `${process.env.NEXT_PUBLIC_SERVER}/api/console/create/`,
         {
           method: "POST",
           headers: {
@@ -177,11 +177,9 @@ const CreateAgentPage = () => {
                       onChange={handleInputChange}
                       className="w-full bg-white bg-opacity-20 rounded-md p-3 text-white"
                     >
-                      {voices.map((voice) => (
-                        <option key={voice.voice_id} value={voice.voice_id} className="bg-gray-800">
-                          {voice.name}
-                        </option>
-                      ))}
+                      <option value="" className=' bg-gray-800'>Select a voice</option>
+                      <option value="adam" className=' bg-gray-800'>Adam</option>
+                      <option value="alice" className=' bg-gray-800'>Alice</option>
                     </select>
                   </div>
                   <div>
