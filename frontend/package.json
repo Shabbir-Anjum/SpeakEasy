@@ -9,12 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.2.8",
     "axios": "^1.7.7",
     "framer-motion": "^11.9.0",
     "lucide-react": "^0.447.0",
     "next": "14.2.14",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-redux": "^9.1.2"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.9",

@@ -2,12 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, createContext, useContext } from "react";
-
+import { useDispatch} from 'react-redux';
 const AuthContext = createContext();
-
+import { setEmail} from '@/store/ChatSlice';
 const headers = { "Content-Type": "application/json" };
 
 export const AuthProvider = ({ children }) => {
+  const dispatch = useDispatch();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }) => {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
+          dispatch(setEmail(userData.email));
           console.log(userData);
         } else {
           localStorage.removeItem("access");

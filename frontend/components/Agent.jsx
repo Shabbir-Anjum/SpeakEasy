@@ -2,8 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Head from 'next/head';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { Play, Square } from 'lucide-react';
 
 const AgentTalk = () => {
+  const email = useSelector((state) => state.chat.email);
   const { id } = useParams();
   const [isTalking, setIsTalking] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -17,11 +20,10 @@ const AgentTalk = () => {
   const agentId = localStorage.getItem("currentAgentId");
   const storedAgentName = localStorage.getItem('currentAgentName');
   const storedVoiceId = localStorage.getItem('selectedVoiceId');
+  const token = localStorage.getItem("access");
   const XI_API_KEY = process.env.NEXT_PUBLIC_XI_API_KEY;
 
   useEffect(() => {
-    sendAudioToBackend('hello')
-
     setAgentName(storedAgentName || "unknown");
     setSelectedVoice(storedVoiceId || "Xb7hH8MSUJpSbSDYk0k2");
 
@@ -60,32 +62,32 @@ const AgentTalk = () => {
     };
   }, [isTalking]);
 
-  const toggleTalking = () => {
-    setIsTalking(prevState => !prevState);
-    if (!isTalking) {
-      recognitionRef.current.start();
-      setTranscript('');
-      videoRef.current.play();
-    } else {
-      recognitionRef.current.stop();
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      videoRef.current.pause();
-    }
+  const startTalking = () => {
+    setIsTalking(true);
+    recognitionRef.current.start();
+    setTranscript('');
+    videoRef.current.play();
+    greeting();
   };
 
-  const sendAudioToBackend = async (text) => {
-    if (!text.trim()) return;
-    console.log('Sending to backend:', text);
+  const stopTalking = () => {
+    setIsTalking(false);
+    recognitionRef.current.stop();
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    videoRef.current.pause();
+  };
+
+  const greeting = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/sync/${agentId}/`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           "Content-Type": "application/json",
-          "User-Agent": "insomnia/9.3.2"
+          "User-Agent": "insomnia/9.3.2",
+          Authorization: `JWT ${token}`,
         },
-        body: JSON.stringify({ "human_text": text }),
       });
 
       if (!response.ok) {
@@ -93,7 +95,43 @@ const AgentTalk = () => {
       }
 
       const responseData = await response.json();
-      console.log(responseData.ai_text);
+      console.log(responseData);
+      if (responseData.ai_text) {
+        generateSpeech(responseData.ai_text);
+      } else {
+        console.error('AI text not found in the response');
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 5000);
+      }
+    } catch (error) {
+      console.error('Error sending audio to backend:', error);
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 5000);
+    }
+  }
+
+
+
+  const sendAudioToBackend = async (text) => {
+    if (!text.trim()) return;
+    console.log('Sending to backend:', text);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/talk/${agentId}/`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "insomnia/9.3.2",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({"email":{email},"human_text": text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const responseData = await response.json();
+      console.log(responseData);
       if (responseData.ai_text) {
         generateSpeech(responseData.ai_text);
       } else {
@@ -159,14 +197,22 @@ const AgentTalk = () => {
             Your browser does not support the video tag.
           </video>
         </div>
-        <div className="mb-8">
+        <div className="mb-8 flex gap-4">
           <button
-            onClick={toggleTalking}
-            className={`px-6 py-3 rounded-full ${
-              isTalking ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
-            } transition-colors duration-300`}
+            onClick={startTalking}
+            disabled={isTalking}
+            className="px-6 py-3 rounded-full bg-green-600 hover:bg-green-700 transition-colors duration-300 flex items-center gap-2"
           >
-            {isTalking ? 'Stop Talking' : 'Start Talking'}
+            <Play size={24} />
+            Start Talking
+          </button>
+          <button
+            onClick={stopTalking}
+            disabled={!isTalking}
+            className="px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 transition-colors duration-300 flex items-center gap-2"
+          >
+            <Square size={24} />
+            Stop Talking
           </button>
         </div>
         <audio ref={audioRef} className="hidden" />

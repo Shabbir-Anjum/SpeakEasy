@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-
+import { useDispatch} from 'react-redux';
+import { setToken} from '@/store/ChatSlice';
 export async function POST(request) {
   const body = await request.json();
+  const dispatch = useDispatch();
   const { username, password } = body;
 
   if (!username || !password) {
@@ -28,6 +30,7 @@ export async function POST(request) {
 
     console.log("Login response:");
     console.log(responseData);
+    dispatch(setToken(responseData));
 
     if (!response.ok) {
       throw new Error(responseData.error || "Login failed");

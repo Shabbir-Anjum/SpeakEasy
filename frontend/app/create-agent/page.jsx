@@ -5,13 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import axios from "axios";
+import { createAgent } from '@/app/api/agents';
+import { useDispatch} from 'react-redux';
+import { setAgentId} from '@/store/ChatSlice';
 
 const CreateAgentPage = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [step, setStep] = useState(1);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
   const [voices, setVoices] = useState([]);
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
+
 
   const [agentData, setAgentData] = useState({
     name: "",
@@ -25,6 +30,7 @@ const CreateAgentPage = () => {
     files: [],
   });
   const XI_API_KEY = process.env.NEXT_PUBLIC_XI_API_KEY;
+
 
   useEffect(() => {
     fetchVoices();
@@ -68,40 +74,24 @@ const CreateAgentPage = () => {
       formData.append(`file${index}`, file, file.name);
     });
 
-    try {
-      const token = localStorage.getItem("access");
+   
+  try {
+    const token = localStorage.getItem("access");
 
-      if (!token) {
-        alert("Not logged in");
-        return;
-      }
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER}/api/console/create/`,
-        {
-          method: "POST",
-          headers: {
-            "User-Agent": "insomnia/9.3.2",
-            Authorization: `JWT ${token}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Agent created successfully:', result);
-        router.push('/my-agents');
-      } else {
-        const errorData = await response.json();
-        console.error("Failed to create agent:", errorData);
-        // Handle error (e.g., show an error message to the user)
-      }
-    } catch (error) {
-      console.error("Error creating agent:", error);
-      // Handle error (e.g., show an error message to the user)
+    if (!token) {
+      alert("Not logged in");
+      return;
     }
-  };
+
+    const result = await createAgent(formData, token);
+    console.log('Agent created successfully:', result);
+    dispatch(setAgentId(result));
+    router.push('/my-agents');
+  } catch (error) {
+    console.error("Error creating agent:", error.message);
+    // Handle error (e.g., show an error message to the user)
+  }
+};
 
   const nextStep = (e) => {
     e.preventDefault();
