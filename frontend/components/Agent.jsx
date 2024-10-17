@@ -17,15 +17,20 @@ const AgentTalk = () => {
   const audioRef = useRef(null);
   const timeoutRef = useRef(null);
   const videoRef = useRef(null);
-  const agentId = localStorage.getItem("currentAgentId");
-  const storedAgentName = localStorage.getItem('currentAgentName');
-  const storedVoiceId = localStorage.getItem('selectedVoiceId');
-  const token = localStorage.getItem("access");
-  const XI_API_KEY = process.env.NEXT_PUBLIC_XI_API_KEY;
+  const [agentId, setAgentId] = useState(null);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
+    // Access localStorage only after component has mounted
+    const storedAgentId = localStorage.getItem("currentAgentId");
+    const storedAgentName = localStorage.getItem('currentAgentName');
+    const storedVoiceId = localStorage.getItem('selectedVoiceId');
+    const storedToken = localStorage.getItem("access");
+
+    setAgentId(storedAgentId);
     setAgentName(storedAgentName || "unknown");
     setSelectedVoice(storedVoiceId || "Xb7hH8MSUJpSbSDYk0k2");
+    setToken(storedToken);
 
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition;
@@ -80,6 +85,7 @@ const AgentTalk = () => {
   };
 
   const greeting = async () => {
+    if (!agentId || !token) return;
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/sync/${agentId}/`, {
         method: 'GET',
@@ -110,10 +116,8 @@ const AgentTalk = () => {
     }
   }
 
-
-
   const sendAudioToBackend = async (text) => {
-    if (!text.trim()) return;
+    if (!text.trim() || !agentId || !token) return;
     console.log('Sending to backend:', text);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/talk/${agentId}/`, {
@@ -161,7 +165,7 @@ const AgentTalk = () => {
         {
           headers: {
             'Accept': 'audio/mpeg',
-            'xi-api-key': XI_API_KEY,
+            'xi-api-key': process.env.NEXT_PUBLIC_XI_API_KEY,
             'Content-Type': 'application/json'
           },
           responseType: 'arraybuffer'

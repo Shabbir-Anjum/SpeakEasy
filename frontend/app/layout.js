@@ -1,8 +1,7 @@
-
 import localFont from "next/font/local";
 import "./globals.css";
-import { AuthProvider } from "@/utils/auth";
-import Providar from "@/app/Providar"
+import ClientAuthProvider from "@/utils/auth";
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -22,16 +21,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <Providar>
-      <AuthProvider>
-        <html lang="en">
-          <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          >
-            {children}
-          </body>
-        </html>
-      </AuthProvider>
-    </Providar>
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <ClientAuthProvider>
+          {children}
+        </ClientAuthProvider>
+      </body>
+    </html>
   );
 }

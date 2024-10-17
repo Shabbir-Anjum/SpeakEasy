@@ -2,9 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, createContext, useContext } from "react";
-import { useDispatch} from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { setEmail } from '@/store/ChatSlice';
+import { Provider } from 'react-redux';
+import store from '@/store/store';
+
 const AuthContext = createContext();
-import { setEmail} from '@/store/ChatSlice';
+
 const headers = { "Content-Type": "application/json" };
 
 export const AuthProvider = ({ children }) => {
@@ -130,7 +134,6 @@ export const AuthProvider = ({ children }) => {
       throw new Error("Password reset confirmation failed");
     }
   };
-
   return (
     <AuthContext.Provider
       value={{
@@ -145,6 +148,14 @@ export const AuthProvider = ({ children }) => {
     >
       {children}
     </AuthContext.Provider>
+  );
+};
+
+const ClientAuthProvider = ({ children }) => {
+  return (
+    <Provider store={store}>
+      <AuthProvider>{children}</AuthProvider>
+    </Provider>
   );
 };
 
@@ -166,3 +177,4 @@ export const ProtectedRoute = ({ children }) => {
 
   return children;
 };
+export default ClientAuthProvider;

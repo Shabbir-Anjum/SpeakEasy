@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 import { useAuth } from "@/utils/auth";
 import { Footer, Header } from "../page";
@@ -17,6 +18,9 @@ export default function Register() {
     last_name: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -24,6 +28,14 @@ export default function Register() {
       await auth.register(formState);
     } catch (error) {
       alert(error);
+    }
+  };
+
+  const togglePasswordVisibility = (field) => {
+    if (field === 'password') {
+      setShowPassword(!showPassword);
+    } else if (field === 're_password') {
+      setShowConfirmPassword(!showConfirmPassword);
     }
   };
 
@@ -51,7 +63,7 @@ export default function Register() {
                   method="POST"
                   className="space-y-6"
                 >
-                  <div>
+                 <div>
                     <label
                       htmlFor="first_name"
                       className="block text-sm font-medium leading-6 text-white"
@@ -161,14 +173,14 @@ export default function Register() {
                         Password
                       </label>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-2 relative">
                       <input
                         id="password"
                         name="password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         required
-                        autoComplete="current-password"
-                        className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+                        autoComplete="new-password"
+                        className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 pr-10"
                         value={formState.password}
                         onChange={(e) =>
                           setFormState((state) => ({
@@ -177,6 +189,17 @@ export default function Register() {
                           }))
                         }
                       />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => togglePasswordVisibility('password')}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
                     </div>
                   </div>
 
@@ -189,14 +212,14 @@ export default function Register() {
                         Confirm Password
                       </label>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-2 relative">
                       <input
                         id="re_password"
                         name="re_password"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         required
-                        autoComplete="current-password"
-                        className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+                        autoComplete="new-password"
+                        className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 pr-10"
                         value={formState.re_password}
                         onChange={(e) =>
                           setFormState((state) => ({
@@ -205,6 +228,17 @@ export default function Register() {
                           }))
                         }
                       />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => togglePasswordVisibility('re_password')}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
                     </div>
                   </div>
 

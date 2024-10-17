@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 import { useAuth } from "@/utils/auth";
 import { Footer, Header } from "../page";
@@ -13,6 +14,8 @@ export default function Login() {
     password: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -21,6 +24,10 @@ export default function Login() {
     } catch (error) {
       alert(error);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -89,14 +96,14 @@ export default function Login() {
                         </Link>
                       </div>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-2 relative">
                       <input
                         id="password"
                         name="password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         required
                         autoComplete="current-password"
-                        className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 bg-white/5 py-1.5 pr-10 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
                         value={formState.password}
                         onChange={(e) =>
                           setFormState((state) => ({
@@ -105,6 +112,17 @@ export default function Login() {
                           }))
                         }
                       />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3"
+                        onClick={togglePasswordVisibility}
+                      >
+                        {showPassword ? (
+                          <EyeSlashIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        ) : (
+                          <EyeIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        )}
+                      </button>
                     </div>
                   </div>
 
