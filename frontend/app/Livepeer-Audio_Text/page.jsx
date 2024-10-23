@@ -206,7 +206,7 @@ const VoiceTranscription = () => {
       const response = await fetch('https://dream-gateway.livepeer.cloud/audio-to-text', {
         method: 'POST',
         headers: {
-          Authorization: 'Bearer 0ed90cdf-2a32-4b50-b3aa-5b6120954515',
+          Authorization: 'Bearer ',
         },
         body: formData
       });
