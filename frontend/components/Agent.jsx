@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Head from 'next/head';
 import axios from 'axios';
@@ -19,6 +19,42 @@ const AgentTalk = () => {
   const videoRef = useRef(null);
   const [agentId, setAgentId] = useState(null);
   const [token, setToken] = useState(null);
+  const hasGreetingRun = useRef(false);
+
+  const greeting = useCallback(async () => {
+    if (!agentId || !token || hasGreetingRun.current) return;
+    
+    try {
+      hasGreetingRun.current = true; // Mark as run before the API call
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/sync/${agentId}/`, {
+        method: 'GET',
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "insomnia/9.3.2",
+          Authorization: `JWT ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const responseData = await response.json();
+      console.log(responseData);
+      if (responseData.ai_text) {
+        generateSpeech(responseData.ai_text);
+      } else {
+        console.error('AI text not found in the response');
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 5000);
+      }
+    } catch (error) {
+      console.error('Error sending audio to backend:', error);
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 5000);
+      hasGreetingRun.current = false; // Reset if there's an error to allow retry
+    }
+  }, [agentId, token]); // Dependencies for useCallback
 
   useEffect(() => {
     // Access localStorage only after component has mounted
@@ -32,6 +68,7 @@ const AgentTalk = () => {
     setSelectedVoice(storedVoiceId || "Xb7hH8MSUJpSbSDYk0k2");
     setToken(storedToken);
 
+    // Setup speech recognition
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
@@ -67,12 +104,18 @@ const AgentTalk = () => {
     };
   }, [isTalking]);
 
+  // Auto-trigger greeting once when agentId and token are available
+  useEffect(() => {
+    if (agentId && token && !hasGreetingRun.current) {
+      greeting();
+    }
+  }, [agentId, token, greeting]);
+
   const startTalking = () => {
     setIsTalking(true);
     recognitionRef.current.start();
     setTranscript('');
     videoRef.current.play();
-    greeting();
   };
 
   const stopTalking = () => {
@@ -83,38 +126,6 @@ const AgentTalk = () => {
     }
     videoRef.current.pause();
   };
-
-  const greeting = async () => {
-    if (!agentId || !token) return;
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/sync/${agentId}/`, {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json",
-          "User-Agent": "insomnia/9.3.2",
-          Authorization: `JWT ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const responseData = await response.json();
-      console.log(responseData);
-      if (responseData.ai_text) {
-        generateSpeech(responseData.ai_text);
-      } else {
-        console.error('AI text not found in the response');
-        setShowAlert(true);
-        setTimeout(() => setShowAlert(false), 5000);
-      }
-    } catch (error) {
-      console.error('Error sending audio to backend:', error);
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 5000);
-    }
-  }
 
   const sendAudioToBackend = async (text) => {
     if (!text.trim() || !agentId || !token) return;

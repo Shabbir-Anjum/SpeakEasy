@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.1.5",
+    "@livepeer/ai": "^0.4.0",
     "@livepeer/react": "^4.2.7",
     "@reduxjs/toolkit": "^2.2.8",
     "axios": "^1.7.7",
+    "class-variance-authority": "^0.7.0",
     "framer-motion": "^11.9.0",
     "livepeer": "^3.4.0",
     "lucide-react": "^0.447.0",

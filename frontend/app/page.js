@@ -8,7 +8,7 @@ import { useAuth } from "@/utils/auth";
 const Logo = () => (
   <div className="flex items-center">
     <Brain className="text-blue-500 mr-2" size={32} />
-    <span className="text-xl font-bold">Intervuo</span>
+    <span className="text-xl font-bold">INTERVUO AI</span>
   </div>
 );
 
@@ -17,7 +17,6 @@ export const Header = () => {
 
   const handleLogout = async (e) => {
     e.preventDefault();
-
     await auth.logout();
   };
 
@@ -150,7 +149,7 @@ const SimplifiedAIAssistantPage = () => {
             animate="visible"
             variants={fadeIn}
           >
-            Your AI Assistant Awaits
+            Transform Your Hiring Process with AI-Powered Interviews
           </motion.h1>
 
           <motion.p
@@ -159,10 +158,9 @@ const SimplifiedAIAssistantPage = () => {
             animate="visible"
             variants={fadeIn}
           >
-            Create your personalized AI companion with advanced voice
-            recognition and intelligent learning capabilities. Provide knowledge
-            data to craft custom agents tailored to your needs. Experience the
-            future of digital assistance today.
+            Create sophisticated AI interview agents tailored to your company's needs. 
+            Train them with your organization's knowledge, job requirements, and evaluation 
+            criteria to conduct consistent, unbiased, and thorough candidate assessments at scale.
           </motion.p>
 
           <motion.div
@@ -171,24 +169,24 @@ const SimplifiedAIAssistantPage = () => {
             animate="visible"
             variants={fadeIn}
           >
-            <Link href="/create-agent">
+            <Link href="/setup-assistant">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full flex items-center shadow-lg transition-colors"
               >
                 <Plus className="mr-2" size={20} />
-                Create Assistant
+                Setup Interview Assistant
               </motion.button>
             </Link>
-            <Link href="/my-agents">
+            <Link href="/assistants">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full flex items-center shadow-lg transition-colors"
               >
                 <List className="mr-2" size={20} />
-                My Assistants
+                View Assistants
               </motion.button>
             </Link>
           </motion.div>

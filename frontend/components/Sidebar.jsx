@@ -20,9 +20,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const [activeItem, setActiveItem] = useState('');
 
   const sidebarItems = [
-    { icon: HomeIcon, text: 'Create Agent', href: '/create-agent' },
-    { icon: FolderIcon, text: 'My Agents', href: '/my-agents' },
-    { icon: GitMerge, text: 'Structure', href: '/code-project-structure' },
+    { icon: HomeIcon, text: 'Setup Assistant', href: '/setup-assistant' },
+    { icon: FolderIcon, text: 'Assistant Collection', href: '/assistants' },
+    { icon: GitMerge, text: 'Performance Review', href: '/report' },
     { icon: CheckSquareIcon, text: 'Tasks', href: '/tasks' },
     { icon: BarChartIcon, text: 'Analytics', href: '/analytics' },
     { icon: SettingsIcon, text: 'Settings', href: '/settings' },
