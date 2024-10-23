@@ -25,7 +25,7 @@ const VoiceTranscription = () => {
     return () => {
       cleanup();
     };
-  }, []);
+  }, [cleanup]);
 
   const cleanup = () => {
     if (mediaRecorderRef.current && isRecording) {

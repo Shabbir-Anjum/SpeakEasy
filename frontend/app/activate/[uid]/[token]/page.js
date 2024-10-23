@@ -29,7 +29,7 @@ export default function Activate({ params }) {
         setLoading(false);
       }
     }
-  }, []);
+  }, [[uid, token]]);
 
   return (
     <>
