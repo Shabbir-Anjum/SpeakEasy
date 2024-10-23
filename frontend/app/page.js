@@ -8,7 +8,7 @@ import { useAuth } from "@/utils/auth";
 const Logo = () => (
   <div className="flex items-center">
     <Brain className="text-blue-500 mr-2" size={32} />
-    <span className="text-xl font-bold">INTERVUO AI</span>
+    <span className="text-xl font-bold">Intervuo</span>
   </div>
 );
 
@@ -17,6 +17,7 @@ export const Header = () => {
 
   const handleLogout = async (e) => {
     e.preventDefault();
+
     await auth.logout();
   };
 
@@ -60,19 +61,21 @@ export const Header = () => {
 
             {auth.loading ? (
               <li>
-                <div>Loading...</div>
+                <div>...</div>
               </li>
             ) : (
               <>
                 {auth?.user ? (
-                  <li>
-                    <button
-                      onClick={handleLogout}
-                      className="hover:text-blue-400 transition-colors"
-                    >
-                      Logout
-                    </button>
-                  </li>
+                  <>
+                    <li>
+                      <button
+                        onClick={handleLogout}
+                        className="hover:text-blue-400 transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </>
                 ) : (
                   <>
                     <li>
@@ -105,7 +108,7 @@ export const Header = () => {
 export const Footer = () => (
   <footer className="absolute bottom-0 left-0 right-0 z-20 bg-black bg-opacity-20">
     <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div className="text-sm">2024 Intervuo. All rights reserved.</div>
+      <div className="text-sm">© 2024 Intervuo. All rights reserved.</div>
       <div className="flex space-x-4">
         <Link
           href="/settings"
@@ -129,6 +132,8 @@ const SimplifiedAIAssistantPage = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
+  console.log(auth);
+
   return (
     <div
       className="min-h-screen bg-cover bg-center bg-fixed relative text-white flex items-center"
@@ -145,7 +150,7 @@ const SimplifiedAIAssistantPage = () => {
             animate="visible"
             variants={fadeIn}
           >
-            Transform Your Hiring Process with AI-Powered Interviews
+            Your AI Assistant Awaits
           </motion.h1>
 
           <motion.p
@@ -154,9 +159,10 @@ const SimplifiedAIAssistantPage = () => {
             animate="visible"
             variants={fadeIn}
           >
-            Create sophisticated AI interview agents tailored to your company's needs.
-            Train them with your organization's knowledge, job requirements, and evaluation
-            criteria to conduct consistent, unbiased, and thorough candidate assessments at scale.
+            Create your personalized AI companion with advanced voice
+            recognition and intelligent learning capabilities. Provide knowledge
+            data to craft custom agents tailored to your needs. Experience the
+            future of digital assistance today.
           </motion.p>
 
           <motion.div
@@ -172,7 +178,7 @@ const SimplifiedAIAssistantPage = () => {
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full flex items-center shadow-lg transition-colors"
               >
                 <Plus className="mr-2" size={20} />
-                Setup Interview Assistant
+                Create Assistant
               </motion.button>
             </Link>
             <Link href="/assistants">
@@ -182,7 +188,7 @@ const SimplifiedAIAssistantPage = () => {
                 className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full flex items-center shadow-lg transition-colors"
               >
                 <List className="mr-2" size={20} />
-                View Assistants
+                My Assistants
               </motion.button>
             </Link>
           </motion.div>
