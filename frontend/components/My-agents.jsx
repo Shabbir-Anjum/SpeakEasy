@@ -38,6 +38,7 @@ const Dashboard = () => {
   const handleViewAgent = (agent) => {
     localStorage.setItem('currentAgentName', agent.agent_name);
     localStorage.setItem('currentAgentId', agent.id);
+    localStorage.setItem('voiceID',agent.voice.voice_id)
     router.push(`/assistants/${agent.id}`);
   };
 

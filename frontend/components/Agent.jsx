@@ -12,7 +12,7 @@ const AgentTalk = () => {
   const [transcript, setTranscript] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [agentName, setAgentName] = useState('');
-  const [selectedVoice, setSelectedVoice] = useState('Xb7hH8MSUJpSbSDYk0k2');
+  const [selectedVoice, setSelectedVoice] = useState('');
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
   const timeoutRef = useRef(null);
@@ -57,15 +57,20 @@ const AgentTalk = () => {
   }, [agentId, token]); // Dependencies for useCallback
 
   useEffect(() => {
-    // Access localStorage only after component has mounted
     const storedAgentId = localStorage.getItem("currentAgentId");
     const storedAgentName = localStorage.getItem('currentAgentName');
-    const storedVoiceId = localStorage.getItem('selectedVoiceId');
     const storedToken = localStorage.getItem("access");
-
+    
+    // Handle voice ID specifically
+    const storedVoiceId = localStorage.getItem('voiceID');
+    if (storedVoiceId) {
+      setSelectedVoice(storedVoiceId); // Set the voice ID state
+    } else {
+      console.warn('No voice ID found in localStorage');
+    }
+    
     setAgentId(storedAgentId);
     setAgentName(storedAgentName || "unknown");
-    setSelectedVoice(storedVoiceId || "Xb7hH8MSUJpSbSDYk0k2");
     setToken(storedToken);
 
     // Setup speech recognition
