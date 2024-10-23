@@ -79,7 +79,7 @@ const CreateAgentPage = () => {
     }
     setIsGeneratingAvatar(true);
     setShowAlert(true);
-    setCountdown(35);
+    setCountdown(40);
     try {
       const avatarUrl = await GenerateAvatar(agentData.avatar);
       if (avatarUrl) {
