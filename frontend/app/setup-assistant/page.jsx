@@ -35,7 +35,7 @@ const CreateAgentPage = () => {
 
   useEffect(() => {
     fetchVoices();
-  }, [fetchVoices]);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -159,7 +159,7 @@ const CreateAgentPage = () => {
       <Sidebar isCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
       <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? "ml-20" : "ml-64"}`}>
         <div className="min-h-screen p-8">
-          <h1 className="text-5xl font-bold mb-12 text-center text-white">Create Your Custom Agent</h1>
+          <h1 className="text-5xl font-bold mb-12 text-center text-white">Setup Assistant</h1>
 
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
             <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl shadow-xl p-8 mb-8">
