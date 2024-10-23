@@ -25,6 +25,7 @@ const Dashboard = () => {
         }
         const data = await response.json();
         setAgents(data);
+        console.log(data,'agents')
         setIsLoading(false);
       } catch (error) {
         setError(error.message);
@@ -36,6 +37,7 @@ const Dashboard = () => {
   }, []);
 
   const handleViewAgent = (agent) => {
+    
     localStorage.setItem('currentAgentName', agent.agent_name);
     localStorage.setItem('currentAgentId', agent.id);
     router.push(`/assistants/${agent.id}`);

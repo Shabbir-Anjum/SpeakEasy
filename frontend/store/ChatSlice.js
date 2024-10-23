@@ -6,6 +6,7 @@ const initialState = {
   email: null,
   voice: null,
   currentAgentName: null,
+  agentdata:null,
 };
 
 export const chatSlice = createSlice({
@@ -30,9 +31,13 @@ export const chatSlice = createSlice({
     setCurrentAgentName: (state, action) => {
       state.currentAgentName = action.payload;
     },
+    setAgentdata: (state, action) => {
+      state.agentdata = action.payload;
+      console.log(state.agentdata,'redux')
+    },
   },
 });
 
-export const { setToken, setAgentId, setEmail, setVoice, setCurrentAgentName } = chatSlice.actions;
+export const { setToken, setAgentId, setEmail, setVoice, setCurrentAgentName, setAgentdata } = chatSlice.actions;
 
 export default chatSlice.reducer;

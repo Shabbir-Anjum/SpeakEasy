@@ -145,24 +145,21 @@ const SimplifiedAIAssistantPage = () => {
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="max-w-2xl">
           <motion.h1
-            className="text-5xl md:text-6xl font-bold mb-6"
+            className="text-3xl md:text-4xl font-bold mb-6"
             initial="hidden"
             animate="visible"
             variants={fadeIn}
           >
-            Your AI Assistant Awaits
+            Transform Your Hiring Process with AI-Powered Interviews
           </motion.h1>
 
           <motion.p
-            className="text-xl mb-8"
+            className=" mb-8"
             initial="hidden"
             animate="visible"
             variants={fadeIn}
           >
-            Create your personalized AI companion with advanced voice
-            recognition and intelligent learning capabilities. Provide knowledge
-            data to craft custom agents tailored to your needs. Experience the
-            future of digital assistance today.
+            Create sophisticated AI interview agents tailored to your company needs. Train them with your organization knowledge, job requirements, and evaluation criteria to conduct consistent, unbiased, and thorough candidate assessments at scale.
           </motion.p>
 
           <motion.div
@@ -171,7 +168,7 @@ const SimplifiedAIAssistantPage = () => {
             animate="visible"
             variants={fadeIn}
           >
-            <Link href="/setup-assistants">
+            <Link href="/setup-assistant">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
