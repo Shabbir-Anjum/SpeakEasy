@@ -185,7 +185,7 @@ const SimplifiedAIAssistantPage = () => {
                 className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full flex items-center shadow-lg transition-colors"
               >
                 <List className="mr-2" size={20} />
-                My Assistants
+                View Assistants
               </motion.button>
             </Link>
           </motion.div>
