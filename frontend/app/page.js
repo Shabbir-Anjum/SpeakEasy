@@ -108,7 +108,7 @@ export const Header = () => {
 export const Footer = () => (
   <footer className="absolute bottom-0 left-0 right-0 z-20 bg-black bg-opacity-20">
     <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div className="text-sm">2024 Intervuo. All rights reserved.</div>
+      <div className="text-sm">© 2024 Intervuo. All rights reserved.</div>
       <div className="flex space-x-4">
         <Link
           href="/settings"
@@ -145,24 +145,24 @@ const SimplifiedAIAssistantPage = () => {
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="max-w-2xl">
           <motion.h1
-            className="text-3xl md:text-4xl font-bold mb-6"
+            className="text-5xl md:text-6xl font-bold mb-6"
             initial="hidden"
             animate="visible"
             variants={fadeIn}
           >
-           Transform Your Hiring Process with AI-Powered Interviews
+            Your AI Assistant Awaits
           </motion.h1>
 
           <motion.p
-            className=" mb-8"
+            className="text-xl mb-8"
             initial="hidden"
             animate="visible"
             variants={fadeIn}
           >
-            Create sophisticated AI interview agents tailored to your company needs. 
-            Train them with your organization knowledge, job requirements, and evaluation 
-            criteria to conduct consistent, unbiased, and thorough candidate assessments 
-            at scale.
+            Create your personalized AI companion with advanced voice
+            recognition and intelligent learning capabilities. Provide knowledge
+            data to craft custom agents tailored to your needs. Experience the
+            future of digital assistance today.
           </motion.p>
 
           <motion.div
@@ -171,7 +171,7 @@ const SimplifiedAIAssistantPage = () => {
             animate="visible"
             variants={fadeIn}
           >
-            <Link href="/setup-assistant">
+            <Link href="/setup-assistants">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
