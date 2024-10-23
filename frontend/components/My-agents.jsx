@@ -113,7 +113,11 @@ const Dashboard = () => {
                 <div className="flex flex-col space-y-4">
                   <div className="space-y-1">
                     <h2 className="text-2xl font-bold text-white">{agent.agent_name}</h2>
-                    <p className="text-sm text-gray-400">{agent.language}</p>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Language</span>
+                      <span className="text-white">{agent.language}</span>
+                    </div>
+                 
                   </div>
 
                   <div className="space-y-2">
