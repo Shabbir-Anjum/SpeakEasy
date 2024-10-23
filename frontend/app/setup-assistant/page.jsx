@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
+import { Volume2 } from "lucide-react";
 import axios from "axios";
 import { createAgent } from '@/app/api/agents';
 import { useDispatch } from 'react-redux';
@@ -18,6 +19,7 @@ const CreateAgentPage = () => {
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [showAlert, setShowAlert] = useState(false);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
   const [agentData, setAgentData] = useState({
@@ -77,7 +79,7 @@ const CreateAgentPage = () => {
     }
     setIsGeneratingAvatar(true);
     setShowAlert(true);
-    setCountdown(35); // Set initial countdown time
+    setCountdown(35);
     try {
       const avatarUrl = await GenerateAvatar(agentData.avatar);
       if (avatarUrl) {
@@ -93,6 +95,35 @@ const CreateAgentPage = () => {
       setIsGeneratingAvatar(false);
       setShowAlert(false);
       setCountdown(0);
+    }
+  };
+
+  const playVoiceSample = async (e, voiceName) => {
+    e.stopPropagation();
+
+    if (currentlyPlaying) {
+      currentlyPlaying.pause();
+      currentlyPlaying.currentTime = 0;
+    }
+
+    try {
+      const response = await fetch(`https://intervuo.store/api/media/voices/${voiceName.toLowerCase()}`);
+      if (!response.ok) throw new Error('Failed to fetch voice sample');
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+
+      audio.onended = () => {
+        setCurrentlyPlaying(null);
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      setCurrentlyPlaying(audio);
+      await audio.play();
+    } catch (error) {
+      console.error('Error playing voice sample:', error);
+      alert('Failed to play voice sample');
     }
   };
 
@@ -133,7 +164,7 @@ const CreateAgentPage = () => {
       return;
     }
     if (step + 1 === 2) {
-       handleGenerateAvatar();
+      handleGenerateAvatar();
     }
     setStep(step + 1);
   };
@@ -191,18 +222,27 @@ const CreateAgentPage = () => {
                   </div>
                   <div>
                     <label className="block mb-2 text-white">Voice</label>
-                    <select
-                      name="voice"
-                      value={agentData.voice}
-                      onChange={handleInputChange}
-                      className="w-full bg-white bg-opacity-20 rounded-md p-3 text-white"
-                    >
-                      {voices.map((voice) => (
-                        <option key={voice.voice_id} value={voice.name.toLowerCase()} className="bg-gray-800">
-                          {voice.name.toLowerCase()}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        name="voice"
+                        value={agentData.voice}
+                        onChange={handleInputChange}
+                        className="w-full bg-white bg-opacity-20 rounded-md p-3 text-white pr-12"
+                      >
+                        {voices.map((voice) => (
+                          <option key={voice.voice_id} value={voice.name.toLowerCase()} className="bg-gray-800 flex justify-between items-center">
+                            {voice.name}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={(e) => playVoiceSample(e, agentData.voice)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white hover:text-blue-400 transition-colors"
+                      >
+                        <Volume2 className="w-6 h-6" />
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <label className="block mb-2 text-white">Enter Job Field for Avatar</label>
@@ -219,6 +259,7 @@ const CreateAgentPage = () => {
                   </div>
                 </div>
               )}
+              
               {step === 2 && (
                 <div className="space-y-6 animate-fadeIn">
                   <h2 className="text-3xl font-semibold mb-6 text-white">
@@ -310,36 +351,34 @@ const CreateAgentPage = () => {
               )}
 
               <div className="mt-8 flex justify-between">
-              {step > 1 && (
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className={`px-6 py-3 bg-gray-600 text-white rounded-md transition-colors ${
-                    isGeneratingAvatar ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-500'
-                  }`}
-                >
-                  Previous
-                </button>
-              )}
-              {step < 3 ? (
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-md transition-colors "
-                >
-      Next
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={isGeneratingAvatar}
-                  className={`px-6 py-3 bg-green-600 text-white rounded-md transition-colors ${
-                    isGeneratingAvatar ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-500'
-                  }`}
-                >
-                  Create Agent
-                </button>
-              )}
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className={`px-6 py-3 bg-gray-600 text-white rounded-md transition-colors ${isGeneratingAvatar ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-500'
+                      }`}
+                  >
+                    Previous
+                  </button>
+                )}
+                {step < 3 ? (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-md transition-colors "
+                  >
+                    Next
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={isGeneratingAvatar}
+                    className={`px-6 py-3 bg-green-600 text-white rounded-md transition-colors ${isGeneratingAvatar ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-500'
+                      }`}
+                  >
+                    Create Agent
+                  </button>
+                )}
               </div>
             </div>
           </form>
