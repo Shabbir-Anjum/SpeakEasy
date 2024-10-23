@@ -80,6 +80,7 @@ const AgentTalk = () => {
         const latestTranscript = latestResult[0].transcript;
         setTranscript(latestTranscript);
 
+
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
         if (latestResult.isFinal) {

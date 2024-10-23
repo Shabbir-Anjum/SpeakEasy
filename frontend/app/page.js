@@ -60,21 +60,19 @@ export const Header = () => {
 
             {auth.loading ? (
               <li>
-                <div>...</div>
+                <div>Loading...</div>
               </li>
             ) : (
               <>
                 {auth?.user ? (
-                  <>
-                    <li>
-                      <button
-                        onClick={handleLogout}
-                        className="hover:text-blue-400 transition-colors"
-                      >
-                        Logout
-                      </button>
-                    </li>
-                  </>
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className="hover:text-blue-400 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </li>
                 ) : (
                   <>
                     <li>
@@ -107,7 +105,7 @@ export const Header = () => {
 export const Footer = () => (
   <footer className="absolute bottom-0 left-0 right-0 z-20 bg-black bg-opacity-20">
     <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div className="text-sm">© 2024 Intervuo. All rights reserved.</div>
+      <div className="text-sm">2024 Intervuo. All rights reserved.</div>
       <div className="flex space-x-4">
         <Link
           href="/settings"
@@ -130,8 +128,6 @@ const SimplifiedAIAssistantPage = () => {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
-
-  console.log(auth);
 
   return (
     <div
@@ -158,8 +154,8 @@ const SimplifiedAIAssistantPage = () => {
             animate="visible"
             variants={fadeIn}
           >
-            Create sophisticated AI interview agents tailored to your company's needs. 
-            Train them with your organization's knowledge, job requirements, and evaluation 
+            Create sophisticated AI interview agents tailored to your company's needs.
+            Train them with your organization's knowledge, job requirements, and evaluation
             criteria to conduct consistent, unbiased, and thorough candidate assessments at scale.
           </motion.p>
 
