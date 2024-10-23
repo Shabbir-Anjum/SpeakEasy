@@ -25,7 +25,6 @@ const Dashboard = () => {
         }
         const data = await response.json();
         setAgents(data);
-        console.log(data,'agents')
         setIsLoading(false);
       } catch (error) {
         setError(error.message);
@@ -37,7 +36,6 @@ const Dashboard = () => {
   }, []);
 
   const handleViewAgent = (agent) => {
-    
     localStorage.setItem('currentAgentName', agent.agent_name);
     localStorage.setItem('currentAgentId', agent.id);
     router.push(`/assistants/${agent.id}`);
@@ -47,7 +45,6 @@ const Dashboard = () => {
     setDeleteLoading(agentId);
     try {
       const token = localStorage.getItem("access");
-
       await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/manage/${agentId}/`, {
         method: "DELETE",
         headers: {
@@ -101,53 +98,55 @@ const Dashboard = () => {
               key={agent.id}
               className="group relative bg-gray-800 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1"
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900/90 z-0" />
-              
-              <div className="relative z-10 p-6">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-gray-700">
-                    <img
-                      src={agent.avatar || "https://img.icons8.com/nolan/64/user-default.png"}
-                      alt={agent.agent_name}
-                      className="h-full w-full object-cover transform transition-transform group-hover:scale-110"
-                    />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-white">{agent.agent_name}</h2>
+              {/* Full-width image container */}
+              <div className="w-full h-48 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent z-10" />
+                <img
+                  src={agent.avatar || "https://img.icons8.com/nolan/64/user-default.png"}
+                  alt={agent.agent_name}
+                  className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
+                />
+              </div>
+
+              {/* Content section */}
+              <div className="relative p-6">
+                <div className="flex flex-col space-y-4">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-bold text-white">{agent.agent_name}</h2>
                     <p className="text-sm text-gray-400">{agent.language}</p>
                   </div>
-                </div>
 
-                <div className="space-y-2 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Voice</span>
-                    <span className="text-white">{agent.voice.voice_name}</span>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Voice</span>
+                      <span className="text-white">{agent.voice.voice_name}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Model</span>
+                      <span className="text-white">{agent.agent_llm}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Model</span>
-                    <span className="text-white">{agent.agent_llm}</span>
-                  </div>
-                </div>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleViewAgent(agent)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>Chat</span>
-                  </button>
-                  <button
-                    onClick={() => handleDeleteAgent(agent.id)}
-                    disabled={deleteLoading === agent.id}
-                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {deleteLoading === agent.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-4 h-4" />
-                    )}
-                  </button>
+                  <div className="flex gap-2 pt-4">
+                    <button
+                      onClick={() => handleViewAgent(agent)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Chat</span>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteAgent(agent.id)}
+                      disabled={deleteLoading === agent.id}
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {deleteLoading === agent.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
