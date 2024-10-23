@@ -9,12 +9,15 @@ import { createAgent } from '@/app/api/agents';
 import { useDispatch } from 'react-redux';
 import { setAgentId } from '@/store/ChatSlice';
 import GenerateAvatar from '@/lib/GenerateAvatar'
+
 const CreateAgentPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [step, setStep] = useState(1);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [showAlert, setShowAlert] = useState(false);
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
   const [agentData, setAgentData] = useState({
@@ -29,6 +32,7 @@ const CreateAgentPage = () => {
     customKnowledge: "",
     files: [],
   });
+
   const voices = [
     { voice_id: 'IKne3meq5aSn9XLyUdCD', name: 'Charlie' },
     { voice_id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George' },
@@ -43,8 +47,20 @@ const CreateAgentPage = () => {
     { voice_id: 'pqHfZKP75CvOlQylNhV4', name: 'Bill' }
   ];
 
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown(prev => prev - 1);
+      }, 1000);
+    } else if (countdown === 0 && showAlert) {
+      setShowAlert(false);
+    }
+    return () => clearInterval(timer);
+  }, [countdown, showAlert]);
 
   const XI_API_KEY = process.env.NEXT_PUBLIC_XI_API_KEY;
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setAgentData((prevData) => ({ ...prevData, [name]: value }));
@@ -60,10 +76,10 @@ const CreateAgentPage = () => {
       return;
     }
     setIsGeneratingAvatar(true);
-    console.log(agentData.avatar,'before')
+    setShowAlert(true);
+    setCountdown(35); // Set initial countdown time
     try {
-      const avatarUrl= await GenerateAvatar(agentData.avatar)
-      console.log(avatarUrl)
+      const avatarUrl = await GenerateAvatar(agentData.avatar);
       if (avatarUrl) {
         setAgentData(prevData => ({
           ...prevData,
@@ -75,54 +91,34 @@ const CreateAgentPage = () => {
       alert('Failed to generate avatar. Please try again.');
     } finally {
       setIsGeneratingAvatar(false);
+      setShowAlert(false);
+      setCountdown(0);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     formData.append("agent.identity.agent_name", agentData.name);
-
-    
     formData.append("agent.identity.language", agentData.language);
- 
-    
     formData.append("agent.identity.voice", agentData.voice);
-   
-    
-    formData.append("agent.identity.avatar", agentData.avatar); // Now sending URL instead of file
-    
-    
+    formData.append("agent.identity.avatar", agentData.avatar);
     formData.append("agent.behaviour.agent_greeting", agentData.greeting);
-    
-    
     formData.append("agent.behaviour.agent_prompt", agentData.prompt);
-   
-    
     formData.append("agent.knowledge.agent_llm", agentData.agent_llm);
-  
-    
     formData.append("agent.knowledge.custom_knowledge", agentData.customKnowledge);
-  
 
-    // Append knowledge files
     agentData.files.forEach((file, index) => {
       formData.append(`file${index}`, file, file.name);
     });
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-  }
+
     try {
       const token = localStorage.getItem("access");
-
       if (!token) {
         alert("Not logged in");
         return;
       }
-
       const result = await createAgent(formData, token);
-      console.log('Agent created successfully:', result);
       dispatch(setAgentId(result));
       router.push('/assistants');
     } catch (error) {
@@ -130,13 +126,16 @@ const CreateAgentPage = () => {
     }
   };
 
-  const nextStep = (e) => {
+  const nextStep = async (e) => {
     e.preventDefault();
-    setStep(step + 1);
-    if(step +1 == 2){
-     handleGenerateAvatar()
-     console.log('first')
+    if (step + 1 === 2 && !agentData.avatar.trim()) {
+      alert("Please enter a job field before proceeding");
+      return;
     }
+    if (step + 1 === 2) {
+       handleGenerateAvatar();
+    }
+    setStep(step + 1);
   };
 
   const prevStep = (e) => {
@@ -144,30 +143,19 @@ const CreateAgentPage = () => {
     setStep(step - 1);
   };
 
-  const fetchVoices = async () => {
-    try {
-      const response = await axios.get('https://api.elevenlabs.io/v1/voices', {
-        headers: {
-          'Accept': 'application/json',
-          'xi-api-key': XI_API_KEY
-        }
-      });
-      setVoices(response.data.voices);
-      if (response.data.voices.length > 0) {
-        setAgentData(prevData => ({ ...prevData, voice: response.data.voices[0].voice_id }));
-      }
-    } catch (error) {
-      console.error('Error fetching voices:', error);
-    }
-  };
-
-
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
       <Sidebar isCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
       <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? "ml-20" : "ml-64"}`}>
         <div className="min-h-screen p-8">
-          <h1 className="text-5xl font-bold mb-12 text-center text-white">Setup Assistant </h1>
+          <h1 className="mb-12 text-center text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">Setup Assistant</h1>
+
+          {showAlert && (
+            <div className="fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fadeIn">
+              <p className="font-semibold">Generating Avatar...</p>
+              <p className="text-sm">Please wait {countdown} seconds</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
             <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl shadow-xl p-8 mb-8">
@@ -322,31 +310,36 @@ const CreateAgentPage = () => {
               )}
 
               <div className="mt-8 flex justify-between">
-                {step > 1 && (
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    className="px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors"
-                  >
-                    Previous
-                  </button>
-                )}
-                {step < 3 ? (
-                  <button
-                    type="button"
-                    onClick={nextStep}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors"
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors"
-                  >
-                    Create Agent
-                  </button>
-                )}
+              {step > 1 && (
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className={`px-6 py-3 bg-gray-600 text-white rounded-md transition-colors ${
+                    isGeneratingAvatar ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-500'
+                  }`}
+                >
+                  Previous
+                </button>
+              )}
+              {step < 3 ? (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-md transition-colors "
+                >
+      Next
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={isGeneratingAvatar}
+                  className={`px-6 py-3 bg-green-600 text-white rounded-md transition-colors ${
+                    isGeneratingAvatar ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-500'
+                  }`}
+                >
+                  Create Agent
+                </button>
+              )}
               </div>
             </div>
           </form>
