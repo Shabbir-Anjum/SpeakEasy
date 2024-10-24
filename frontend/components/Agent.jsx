@@ -11,7 +11,7 @@ const AgentTalk = () => {
   const [agentName, setAgentName] = useState('');
   const [selectedVoice, setSelectedVoice] = useState('');
   const audioRef = useRef(null);
-  //const videoRef = useRef(null);
+  const videoRef = useRef(null);
   const [agentId, setAgentId] = useState(null);
   const [token, setToken] = useState(null);
   const hasGreetingRun = useRef(false);
@@ -117,9 +117,11 @@ const AgentTalk = () => {
     setIsListening(prev => !prev);
     if (!isListening) {
       recognitionRef.current.start();
+      videoRef.current.play();
       setTranscript('');
     } else {
       recognitionRef.current.stop();
+      videoRef.current.pause();
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -127,11 +129,11 @@ const AgentTalk = () => {
   };
 
 
-  // useEffect(() => {
-  //   if (agentId && token && !hasGreetingRun.current) {
-  //     greeting();
-  //   }
-  // }, [agentId, token, greeting]);
+  useEffect(() => {
+    if (agentId && token && !hasGreetingRun.current) {
+      greeting();
+    }
+  }, [agentId, token, greeting]);
 
   const sendTranscriptToBackend = async (text) => {
     if (!text.trim() || !agentId || !token) return;
@@ -209,18 +211,20 @@ const AgentTalk = () => {
         <h1 className="text-3xl font-bold mb-4">{agentName}</h1>
         <div className="w-96 h-96 rounded-full overflow-hidden mb-6">
           <video
+            ref={videoRef}
             loop
             muted
+            controlsList="nodownload"
             className="w-full h-full object-cover"
           >
             <source src="/video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
-        <div className="mb-8 flex gap-4">
+        <div className="mb-8 ">
         <button
           onClick={toggleListening}
-          className={`w-full py-3 rounded-lg mb-4 ${
+          className={`w-full py-3 rounded-lg px-4 mb-4 ${
             isListening 
               ? 'bg-red-600 hover:bg-red-700' 
               : 'bg-blue-600 hover:bg-blue-700'
