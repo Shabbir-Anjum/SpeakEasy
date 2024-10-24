@@ -3,29 +3,29 @@ import { useParams } from 'next/navigation';
 import Head from 'next/head';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { Play, Square } from 'lucide-react';
 
 const AgentTalk = () => {
   const email = useSelector((state) => state.chat.email);
   const { id } = useParams();
-  const [isTalking, setIsTalking] = useState(false);
-  const [transcript, setTranscript] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [agentName, setAgentName] = useState('');
   const [selectedVoice, setSelectedVoice] = useState('');
-  const recognitionRef = useRef(null);
   const audioRef = useRef(null);
-  const timeoutRef = useRef(null);
-  const videoRef = useRef(null);
+  //const videoRef = useRef(null);
   const [agentId, setAgentId] = useState(null);
   const [token, setToken] = useState(null);
   const hasGreetingRun = useRef(false);
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef(null);
+  const timeoutRef = useRef(null);
+
 
   const greeting = useCallback(async () => {
     if (!agentId || !token || hasGreetingRun.current) return;
     
     try {
-      hasGreetingRun.current = true; // Mark as run before the API call
+      hasGreetingRun.current = true;
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/sync/${agentId}/`, {
         method: 'GET',
         headers: {
@@ -40,7 +40,6 @@ const AgentTalk = () => {
       }
 
       const responseData = await response.json();
-      console.log(responseData);
       if (responseData.ai_text) {
         generateSpeech(responseData.ai_text);
       } else {
@@ -52,28 +51,30 @@ const AgentTalk = () => {
       console.error('Error sending audio to backend:', error);
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 5000);
-      hasGreetingRun.current = false; // Reset if there's an error to allow retry
+      hasGreetingRun.current = false;
     }
-  }, [agentId, token]); // Dependencies for useCallback
+  }, [agentId, token]);
 
-  useEffect(() => {
+ 
+
+
+  useEffect(()=>{
     const storedAgentId = localStorage.getItem("currentAgentId");
     const storedAgentName = localStorage.getItem('currentAgentName');
     const storedToken = localStorage.getItem("access");
-    
-    // Handle voice ID specifically
     const storedVoiceId = localStorage.getItem('voiceID');
+    
     if (storedVoiceId) {
-      setSelectedVoice(storedVoiceId); // Set the voice ID state
-    } else {
-      console.warn('No voice ID found in localStorage');
+      setSelectedVoice(storedVoiceId);
     }
     
     setAgentId(storedAgentId);
     setAgentName(storedAgentName || "unknown");
     setToken(storedToken);
+  },[])
 
-    // Setup speech recognition
+  useEffect(() => {
+   
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
@@ -85,16 +86,18 @@ const AgentTalk = () => {
         const latestTranscript = latestResult[0].transcript;
         setTranscript(latestTranscript);
 
-
+        // Clear any existing timeout
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-        if (latestResult.isFinal) {
-          sendAudioToBackend(latestTranscript);
-        }
+        // Set new timeout to detect silence
+        timeoutRef.current = setTimeout(async() =>  {
+    
+          await sendTranscriptToBackend(latestTranscript);
+        }, 1000); // Wait 1 second of silence before sending
       };
 
       recognitionRef.current.onend = () => {
-        if (isTalking) {
+        if (isListening) {
           recognitionRef.current.start();
         }
       };
@@ -108,34 +111,31 @@ const AgentTalk = () => {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [isTalking]);
+  }, [isListening]);
 
-  // Auto-trigger greeting once when agentId and token are available
-  useEffect(() => {
-    if (agentId && token && !hasGreetingRun.current) {
-      greeting();
+  const toggleListening = () => {
+    setIsListening(prev => !prev);
+    if (!isListening) {
+      recognitionRef.current.start();
+      setTranscript('');
+    } else {
+      recognitionRef.current.stop();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     }
-  }, [agentId, token, greeting]);
-
-  const startTalking = () => {
-    setIsTalking(true);
-    recognitionRef.current.start();
-    setTranscript('');
-    videoRef.current.play();
   };
 
-  const stopTalking = () => {
-    setIsTalking(false);
-    recognitionRef.current.stop();
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    videoRef.current.pause();
-  };
 
-  const sendAudioToBackend = async (text) => {
+  // useEffect(() => {
+  //   if (agentId && token && !hasGreetingRun.current) {
+  //     greeting();
+  //   }
+  // }, [agentId, token, greeting]);
+
+  const sendTranscriptToBackend = async (text) => {
     if (!text.trim() || !agentId || !token) return;
-    console.log('Sending to backend:', text);
+    console.log(text)
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/console/talk/${agentId}/`, {
         method: 'POST',
@@ -144,7 +144,10 @@ const AgentTalk = () => {
           "User-Agent": "insomnia/9.3.2",
           Authorization: `JWT ${token}`,
         },
-        body: JSON.stringify({"email":{email},"human_text": text }),
+        body: JSON.stringify({
+          "email": email,
+          "human_text": text.trim()
+        }),
       });
 
       if (!response.ok) {
@@ -152,16 +155,13 @@ const AgentTalk = () => {
       }
 
       const responseData = await response.json();
-      console.log(responseData);
       if (responseData.ai_text) {
-        generateSpeech(responseData.ai_text);
+        await generateSpeech(responseData.ai_text);
       } else {
-        console.error('AI text not found in the response');
-        setShowAlert(true);
-        setTimeout(() => setShowAlert(false), 5000);
+        throw new Error('AI text not found in the response');
       }
     } catch (error) {
-      console.error('Error sending audio to backend:', error);
+      console.error('Error sending text to backend:', error);
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 5000);
     }
@@ -192,7 +192,7 @@ const AgentTalk = () => {
       const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
       const audioUrl = URL.createObjectURL(audioBlob);
       audioRef.current.src = audioUrl;
-      audioRef.current.play();
+      await audioRef.current.play();
     } catch (error) {
       console.error('Error generating speech:', error);
       setShowAlert(true);
@@ -209,7 +209,6 @@ const AgentTalk = () => {
         <h1 className="text-3xl font-bold mb-4">{agentName}</h1>
         <div className="w-96 h-96 rounded-full overflow-hidden mb-6">
           <video
-            ref={videoRef}
             loop
             muted
             className="w-full h-full object-cover"
@@ -219,22 +218,17 @@ const AgentTalk = () => {
           </video>
         </div>
         <div className="mb-8 flex gap-4">
-          <button
-            onClick={startTalking}
-            disabled={isTalking}
-            className="px-6 py-3 rounded-full bg-green-600 hover:bg-green-700 transition-colors duration-300 flex items-center gap-2"
-          >
-            <Play size={24} />
-            Start Talking
-          </button>
-          <button
-            onClick={stopTalking}
-            disabled={!isTalking}
-            className="px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 transition-colors duration-300 flex items-center gap-2"
-          >
-            <Square size={24} />
-            Stop Talking
-          </button>
+        <button
+          onClick={toggleListening}
+          className={`w-full py-3 rounded-lg mb-4 ${
+            isListening 
+              ? 'bg-red-600 hover:bg-red-700' 
+              : 'bg-blue-600 hover:bg-blue-700'
+          } text-white transition-colors`}
+        >
+          {isListening ? 'Stop Listening' : 'Start Listening'}
+        </button>
+
         </div>
         <audio ref={audioRef} className="hidden" />
         {showAlert && (
