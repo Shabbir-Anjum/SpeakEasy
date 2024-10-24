@@ -164,7 +164,7 @@ const CreateAgentPage = () => {
       return;
     }
     if (step + 1 === 2) {
-      handleGenerateAvatar();
+      await handleGenerateAvatar();
     }
     setStep(step + 1);
   };
