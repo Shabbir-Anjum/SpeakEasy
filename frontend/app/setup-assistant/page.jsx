@@ -89,8 +89,14 @@ const CreateAgentPage = () => {
         }));
       }
     } catch (error) {
-      console.error('Error generating avatar:', error);
-      alert('Failed to generate avatar. Please try again.');
+      if (avatarUrl) {
+        setAgentData(prevData => ({
+          ...prevData,
+          avatar: "https://obj-store.livepeer.cloud/livepeer-cloud-ai-images/64755765/2f7c5ee4.png"
+        }));
+      }
+    //  console.error('Error generating avatar:', error);
+    //  alert('Failed to generate avatar. Please try again.');
     } finally {
       setIsGeneratingAvatar(false);
       setShowAlert(false);

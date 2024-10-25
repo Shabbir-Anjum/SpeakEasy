@@ -8,8 +8,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const router = useRouter();
-
-  useEffect(() => {
+    useEffect(() => {
     const fetchAgents = async () => {
       try {
         const token = localStorage.getItem("access");
@@ -34,7 +33,6 @@ const Dashboard = () => {
 
     fetchAgents();
   }, []);
-
   const handleViewAgent = (agent) => {
     localStorage.setItem('currentAgentName', agent.agent_name);
     localStorage.setItem('currentAgentId', agent.id);

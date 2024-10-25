@@ -29,6 +29,7 @@ export default function RootLayout({ children }) {
           {children}
         </ClientAuthProvider>
       </body>
+  
     </html>
   );
 }
