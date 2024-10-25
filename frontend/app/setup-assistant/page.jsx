@@ -29,7 +29,7 @@ const CreateAgentPage = () => {
     jobField: "",
     greeting: "",
     prompt: "",
-    llm: "gpt-4o",
+    llm: "",
     customKnowledge: "",
     files: [],
   });
@@ -307,8 +307,9 @@ const CreateAgentPage = () => {
                       value={agentData.agent_llm}
                       onChange={handleInputChange}
                       className="w-full bg-white bg-opacity-20 rounded-md p-3 text-white"
-                    >
-                      <option value="gpt-4o" className=" bg-gray-800">
+                    >  
+                      <option value="" className="bg-gray-800">Select LLM</option>
+                      <option value="gpt-4o-mini" className=" bg-gray-800">
                         GPT-4o-Mini
                       </option>
                       <option value="gpt-4o" className=" bg-gray-800">
