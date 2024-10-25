@@ -1,5 +1,14 @@
+export const DEFAULT_AVATAR_URL = "https://obj-store.livepeer.cloud/livepeer-cloud-ai-images/64755765/2f7c5ee4.png";
+export const TIMEOUT_DURATION = 10000; // 10 seconds for Vercel
+
+
 const GenerateAvatar = async (prompt) => {
   try {
+    // for testing
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+
+
     const response = await fetch("/api/livepeer/generate-image", {
       method: "POST",
       headers: {
@@ -10,8 +19,9 @@ const GenerateAvatar = async (prompt) => {
         width: 1024,
         height: 1024,
       }),
+      signal: controller.signal
     });
-
+ clearTimeout(timeoutId);
     const data = await response.json();
 
     if (!data.success) {
@@ -28,7 +38,10 @@ const GenerateAvatar = async (prompt) => {
 
   } catch (err) {
     console.error("Error:", err); // Debug log
-    throw new Error(err.message); // Throw the error to propagate it properly
+    if (err.name === 'AbortError') {
+      return DEFAULT_AVATAR_URL;
+    }
+    throw new Error(err.message);
   }
 };
 

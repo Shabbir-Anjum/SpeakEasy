@@ -77,26 +77,23 @@ const CreateAgentPage = () => {
       alert("Please enter a job field first");
       return;
     }
+    
     setIsGeneratingAvatar(true);
     setShowAlert(true);
     setCountdown(40);
+    
     try {
       const avatarUrl = await GenerateAvatar(agentData.avatar);
-      if (avatarUrl) {
-        setAgentData(prevData => ({
-          ...prevData,
-          avatar: avatarUrl
-        }));
-      }
+      setAgentData(prevData => ({
+        ...prevData,
+        avatar: avatarUrl || DEFAULT_AVATAR_URL
+      }));
     } catch (error) {
-      if (avatarUrl) {
-        setAgentData(prevData => ({
-          ...prevData,
-          avatar: "https://obj-store.livepeer.cloud/livepeer-cloud-ai-images/64755765/2f7c5ee4.png"
-        }));
-      }
-    //  console.error('Error generating avatar:', error);
-    //  alert('Failed to generate avatar. Please try again.');
+      console.error('Error generating avatar:', error);
+      setAgentData(prevData => ({
+        ...prevData,
+        avatar: DEFAULT_AVATAR_URL
+      }));
     } finally {
       setIsGeneratingAvatar(false);
       setShowAlert(false);
@@ -156,6 +153,7 @@ const CreateAgentPage = () => {
         return;
       }
       const result = await createAgent(formData, token);
+
       dispatch(setAgentId(result));
       router.push('/assistants');
     } catch (error) {
