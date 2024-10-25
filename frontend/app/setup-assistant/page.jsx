@@ -61,7 +61,6 @@ const CreateAgentPage = () => {
     return () => clearInterval(timer);
   }, [countdown, showAlert]);
 
-  const XI_API_KEY = process.env.NEXT_PUBLIC_XI_API_KEY;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -89,7 +88,7 @@ const CreateAgentPage = () => {
         avatar: avatarUrl || DEFAULT_AVATAR_URL
       }));
     } catch (error) {
-      console.error('Error generating avatar:', error);
+      //console.error('Error generating avatar:', error);
       setAgentData(prevData => ({
         ...prevData,
         avatar: DEFAULT_AVATAR_URL
@@ -310,7 +309,7 @@ const CreateAgentPage = () => {
                       onChange={handleInputChange}
                       className="w-full bg-white bg-opacity-20 rounded-md p-3 text-white"
                     >
-                      <option value="gpt-4o-mini" className=" bg-gray-800">
+                      <option value="gpt-4o" className=" bg-gray-800">
                         GPT-4o-Mini
                       </option>
                       <option value="gpt-4o" className=" bg-gray-800">

@@ -37,7 +37,7 @@ const GenerateAvatar = async (prompt) => {
     }
 
   } catch (err) {
-    console.error("Error:", err); // Debug log
+    //console.error("Error:", err); // Debug log
     if (err.name === 'AbortError') {
       return DEFAULT_AVATAR_URL;
     }
