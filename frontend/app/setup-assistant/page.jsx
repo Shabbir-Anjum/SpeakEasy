@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import { Volume2 } from "lucide-react";
-import axios from "axios";
 import { createAgent } from '@/app/api/agents';
 import { useDispatch } from 'react-redux';
 import { setAgentId } from '@/store/ChatSlice';
@@ -79,7 +78,7 @@ const CreateAgentPage = () => {
     
     setIsGeneratingAvatar(true);
     setShowAlert(true);
-    setCountdown(40);
+    setCountdown(10);
     
     try {
       const avatarUrl = await GenerateAvatar(agentData.avatar);
