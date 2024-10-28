@@ -11,6 +11,5 @@ class CustomUserManager(UserManager):
         )
 class User(AbstractUser):
     email = models.EmailField(unique=True)
-    is_email_confirmed = models.BooleanField(default=False)
 
     objects = CustomUserManager()

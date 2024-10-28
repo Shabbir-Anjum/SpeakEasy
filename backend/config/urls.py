@@ -16,8 +16,16 @@ Including another URLconf
 """
 # from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from console.views import SecureFileAccessView, \
+                          SecureAvatarAccessView, \
+                          SecureVoiceAccessView
 
 urlpatterns = [
-    path('api/console', include('console.urls')),
-    path('api/auth', include('accounts.urls')),
+    path('api/console/', include('console.urls')),
+    path('api/auth', include('accounts.urls.custom')),
+    path('api/media/files/<str:order_id>__<str:filename>', SecureFileAccessView.as_view(), name='secure-file-access'),
+    path('api/media/avatars/<str:order_id>__<str:filename>', SecureAvatarAccessView.as_view(), name='secure-avatar-access'),
+    path('api/media/voices/<str:voice>', SecureVoiceAccessView.as_view(), name='secure-voice-access')
 ]

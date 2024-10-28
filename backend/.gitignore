@@ -1,3 +1,5 @@
 .venv/
 .env
 *.log
+
+/media/files/*

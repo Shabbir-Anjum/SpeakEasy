@@ -29,11 +29,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG')
 
-if DEBUG == True:
-    ALLOWED_HOSTS = []
-else:
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 
+
+APPEND_SLASH = True
 
 # Application definition
 
@@ -48,7 +47,9 @@ INSTALLED_APPS = [
     'accounts',
     'djoser',
     'rest_framework',
-    'corsheaders'
+    'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -132,7 +133,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = 'static/'
+STATIC_URL = 'api/static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = 'api/media/'
 
 
 # Default primary key field type
@@ -142,8 +146,30 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #         'rest_framework.permissions.IsAuthenticated',
+    # ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
+
 DJOSER = {
-    "RETYPE_USER_PASSWORD" : True,
+    "USER_CREATE_PASSWORD_RETYPE" : True,
+    "SEND_ACTIVATION_EMAIL" : True,
+    "SEND_CONFIRMATION_EMAIL" : False,
+    "SET_PASSWORD_RETYPE" : True,
+    "PASSWORD_RESET_CONFIRM_RETYPE" : True,
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION" : False,
+    "ACTIVATION_URL" : os.getenv("ACTIVATION_URL"),
+    "PASSWORD_RESET_CONFIRM_URL" : os.getenv("PASSWORD_RESET_CONFIRM_URL"),
+    "EMAIL_FRONTEND_PROTOCOL" : os.getenv("EMAIL_FRONTEND_PROTOCOL"),
+    "EMAIL_FRONTEND_DOMAIN" : os.getenv("EMAIL_FRONTEND_DOMAIN"),
+    "EMAIL_FRONTEND_SITE_NAME" : "Intervuo",
     'SERIALIZERS' : {
         'user_create' : 'djoser.serializers.UserCreateSerializer',
         'current_user' : 'djoser.serializers.UserSerializer',
@@ -154,9 +180,39 @@ DJOSER = {
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ("JWT",),
     'ACCESS_TOKEN_LIFETIME' : timedelta(days=30),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': False
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True
 }
 
 FRONTEND_URL = os.getenv('frontend')
 AUTH_USER_MODEL = os.getenv('AUTH_USER_MODEL')
+
+SEND_CONFIRMATION_EMAIL=True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_CONFIRMATION_EXPIRATION_TIME = os.getenv('EMAIL_CONFIRMATION_EXPIRATION_TIME')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+
+CELERY_BROKER_URL=os.getenv('CELERY_BROKER_URL')
+
+
+VOICE_MAP = {
+    'adam': 'pNInz6obpgDQGcFmaJgB',
+    'alice': 'Xb7hH8MSUJpSbSDYk0k2',
+    'bill': 'pqHfZKP75CvOlQylNhV4',
+    'brian': 'nPczCjzI2devNBz1zQrb',
+    'callum': 'N2lVS1w4EtoT3dr4eOWO',
+    'charlie': 'IKne3meq5aSn9XLyUdCD',
+    'charlotte': 'XB0fDUnXU5powFXDhCwa',
+    'chris': 'iP95p4xoKVk53GoZ742B',
+    'daniel': 'onwK4e9ZLuTAKqWW03F9',
+    'george': 'JBFqnCBsd6RMkjVDRZzb',
+    'liam': 'TX3LPaxmHKxFdv7VOQHJ',
+    'lily': 'pFZP5JQG7iQjIQuC4Bku',
+    'matilda': 'XrExE9yKIg1WjnnlVkGX',
+    'sarah': 'EXAVITQu4vr4xnSDxMaL'
+}
